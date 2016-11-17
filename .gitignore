@@ -1,6 +1,5 @@
 *.*
-!.gitignore
-!.pdf
-!.vsdx
-!.vhd
-!.ucf
+!/.gitignore
+!documents/
+!*.vhd
+!*.ucf
