@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    18:01:47 11/17/2016 
+-- Create Date:    19:25:06 11/17/2016 
 -- Design Name: 
--- Module Name:    RegBlock - Behavioral 
+-- Module Name:    RABlock - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -19,7 +19,6 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use ieee.numeric_std.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -30,35 +29,42 @@ use ieee.numeric_std.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity RegBlock is
+entity RABlock is
     Port ( ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
            PC : in  STD_LOGIC_VECTOR (15 downto 0);
-           ALU : in  STD_LOGIC_VECTOR (15 downto 0);
            Data : in  STD_LOGIC_VECTOR (15 downto 0);
-           RegControl : in  STD_LOGIC_VECTOR (0 downto 0);
-           T : out  STD_LOGIC;
-           SP : out  STD_LOGIC_VECTOR (15 downto 0);
+           RAControl : in  STD_LOGIC_VECTOR (0 downto 0);
            RegX : out  STD_LOGIC_VECTOR (15 downto 0);
-           RegY : out  STD_LOGIC_VECTOR (15 downto 0));
-end RegBlock;
+           RegY : out  STD_LOGIC_VECTOR (15 downto 0);
+           T : out  STD_LOGIC;
+           ALU : out  STD_LOGIC_VECTOR (15 downto 0));
+end RABlock;
 
-architecture Behavioral of RegBlock is
-
-signal Reg0: STD_LOGIC_VECTOR (15 downto 0);
-signal Reg1: STD_LOGIC_VECTOR (15 downto 0);
-signal Reg2: STD_LOGIC_VECTOR (15 downto 0);
-signal Reg3: STD_LOGIC_VECTOR (15 downto 0);
-signal Reg4: STD_LOGIC_VECTOR (15 downto 0);
-signal Reg5: STD_LOGIC_VECTOR (15 downto 0);
-signal Reg6: STD_LOGIC_VECTOR (15 downto 0);
-signal Reg7: STD_LOGIC_VECTOR (15 downto 0);
-
-signal RegIH: STD_LOGIC_VECTOR (15 downto 0);
-signal RegSP: STD_LOGIC_VECTOR (15 downto 0);
-signal RegT: STD_LOGIC;
-
-shared variable adder: STD_LOGIC_VECTOR (15 downto 0);
-
+architecture Behavioral of RABlock is
+signal Rx,Ry: STD_LOGIC_VECTOR (15 downto 0);
 begin
+	
+	with ImmLong(10 downto 8) select Rx <=
+			Reg0 when "000",
+			Reg1 when "001",
+			Reg2 when "010",
+			Reg3 when "011",
+			Reg4 when "100",
+			Reg5 when "101",
+			Reg6 when "110",
+			Reg7 when "111",
+			"0000000000000000" when others;
+			
+	with ImmLong(7 downto 5) select Ry <=
+			Reg0 when "000",
+			Reg1 when "001",
+			Reg2 when "010",
+			Reg3 when "011",
+			Reg4 when "100",
+			Reg5 when "101",
+			Reg6 when "110",
+			Reg7 when "111",
+			"0000000000000000" when others;
+
 end Behavioral;
 

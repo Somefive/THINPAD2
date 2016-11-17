@@ -36,7 +36,7 @@ entity RamBlock is
 			  PCAddress : in STD_LOGIC_VECTOR(15 downto 0);
 			  RamControl : in STD_LOGIC_VECTOR(15 downto 0);
 			  Finish : out STD_LOGIC;
-			  Data : out STD_LOGIC_VECTOR(15 downto 0);
+			  Output : out STD_LOGIC_VECTOR(15 downto 0);
 			  Instruction : out STD_LOGIC_VECTOR(15 downto 0);
 			  ADDR : out  STD_LOGIC_VECTOR (17 downto 0);
            DATA : inout  STD_LOGIC_VECTOR (15 downto 0);
