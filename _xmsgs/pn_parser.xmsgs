@@ -8,7 +8,11 @@
 <!-- Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.    -->
 
 <messages>
+<<<<<<< HEAD
 <msg type="info" file="ProjectMgmt" num="1061" ><arg fmt="%s" index="1">Parsing VHDL file &quot;E:/THINPAD2/ControlBlock.vhd&quot; into library work</arg>
+=======
+<msg type="info" file="ProjectMgmt" num="1061" ><arg fmt="%s" index="1">Parsing VHDL file &quot;D:/Study/THU/2016Autumn/CPU/THINPAD2/ALUBlock.vhd&quot; into library work</arg>
+>>>>>>> 38cb2a7e6e2b44f967cbf0a37974e32a0d23915f
 </msg>
 
 </messages>
