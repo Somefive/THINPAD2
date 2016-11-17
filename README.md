@@ -1,0 +1,2 @@
+# THINPAD2
+THINPAD version 2
