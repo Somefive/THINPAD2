@@ -1,0 +1,12 @@
+V3 7
+FL D:/Study/THU/2016Autumn/CPU/THINPAD2/CPU.vhd 2016/11/17.17:51:51 P.20131013
+EN work/CPU 1479376315 FL D:/Study/THU/2016Autumn/CPU/THINPAD2/CPU.vhd \
+      PB ieee/std_logic_1164 1381692176
+AR work/CPU/Behavioral 1479376316 \
+      FL D:/Study/THU/2016Autumn/CPU/THINPAD2/CPU.vhd EN work/CPU 1479376315
+FL D:/Study/THU/2016Autumn/CPU/THINPAD2/Main.vhd 2016/11/17.17:50:33 P.20131013
+EN work/Main 1479376317 FL D:/Study/THU/2016Autumn/CPU/THINPAD2/Main.vhd \
+      PB ieee/std_logic_1164 1381692176
+AR work/Main/Behavioral 1479376318 \
+      FL D:/Study/THU/2016Autumn/CPU/THINPAD2/Main.vhd EN work/Main 1479376317 \
+      CP CPU
