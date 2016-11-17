@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use ieee.numeric_std.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -33,14 +34,38 @@ entity PCBlock is
     Port ( RegX : in  STD_LOGIC_VECTOR (15 downto 0);
            T : in  STD_LOGIC;
            ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
-           PCControl : in  STD_LOGIC_VECTOR (0 downto 0);
+           PCControl : in  STD_LOGIC_VECTOR (2 downto 0);
            PC : out  STD_LOGIC_VECTOR (15 downto 0));
 end PCBlock;
 
 architecture Behavioral of PCBlock is
-
+	
 begin
-
-
+	process(PCControl)
+	begin
+		case PCControl is
+			when "001" =>
+				PC <= PC + 1;
+			when "010" =>
+				PC <= PC + std_logic_vector(resize(signed(ImmLong(10 downto 0)), 16));
+			when "011" =>
+				if(RegX = '0') then
+					PC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+				end if;
+			when "100" =>
+				if(RegX /= '0') then
+					PC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+				end if;
+			when "101" =>
+				if(T = '0') then
+					PC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+				end if;
+			when "110" =>
+				PC <= PC + RegX;
+			when others =>
+				PC <= PC;
+		end case;
+	end process;
+		
 end Behavioral;
 
