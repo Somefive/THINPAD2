@@ -80,6 +80,7 @@ component CPU is
            RESET : in  STD_LOGIC);
 end component;
 
+
 begin
 
 	CPU_ENTITY: CPU port map ( 
