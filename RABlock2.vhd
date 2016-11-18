@@ -87,11 +87,7 @@ begin
 			Reg7 when "111",
 			"0000000000000000" when others;
 	
-	RegX <= Rx;
-	RegY <= Ry;
-	T <= RegT;
-	
-	process(RAControl, Rx, RY)
+	process(RAControl)
 	begin
 		case RAControl is
 			when "00001" =>

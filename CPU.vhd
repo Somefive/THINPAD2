@@ -89,6 +89,15 @@ component RamBlock is
            CLK : in  STD_LOGIC);
 end component;
 
+component PCBlock is
+    Port ( RegX : in  STD_LOGIC_VECTOR (15 downto 0);
+           T : in  STD_LOGIC;
+           ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
+           PCControl : in  STD_LOGIC_VECTOR (2 downto 0);
+           PC : buffer  STD_LOGIC_VECTOR (15 downto 0);
+			  CLK : in STD_LOGIC);
+end component;
+
 signal RegX: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal RegY: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal ALU: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
@@ -97,9 +106,11 @@ signal RamControl: STD_LOGIC_VECTOR(2 downto 0):="000";
 signal Finish: STD_LOGIC;
 signal Ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal Output: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
+signal T: STD_LOGIC:='0';
+signal PCControl: STD_LOGIC_VECTOR(2 downto 0):="000";
 
 signal state: integer range 0 to 15:=0;
-
+signal fake_ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 begin
 
 	DL: DigitLights port map (DYP1, state);
@@ -112,7 +123,7 @@ begin
 		RamControl,
 		Finish,
 		Output,
-		Ins,
+		fake_ins,
 		RAM1ADDR,
 		RAM1DATA,
 		RAM1_EN,
@@ -131,8 +142,49 @@ begin
 		DYP0,
 		CLK_KEY
 	);
-
 	
+	PCBlock_Entity: PCBlock port map (
+		RegX,
+		T,
+		Ins(10 downto 0),
+		PCControl,
+		FPGA_LED,
+		CLK_KEY
+	);
+
+	process(CLK_KEY)
+	begin
+		if(CLK_KEY'event and CLK_KEY='1')then
+			case state is
+				when 0 =>
+					Ins <= "00000"&SW_DIP(10 downto 0);
+					T <= SW_DIP(15);
+					RegX <= '0'&SW_DIP(14 downto 11)&"00000000000";
+					PCControl <= "000";
+					state <= 1;
+				when 1 =>
+					PCControl <= "001";
+					state <= 2;
+				when 2 =>
+					PCControl <= "010";
+					state <= 3;
+				when 3 =>
+					PCControl <= "011";
+					state <= 4;
+				when 4 =>
+					PCControl <= "100";
+					state <= 5;
+				when 5 =>
+					PCControl <= "101";
+					state <= 6;
+				when 6 =>
+					PCControl <= "110";
+					state <= 7;
+				when others =>
+					state <= 0;
+			end case;
+		end if;
+	end process;
 	
 end Behavioral;
 
