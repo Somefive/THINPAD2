@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -109,7 +111,7 @@ end component;
 
 signal RamControl: STD_LOGIC_VECTOR(2 downto 0):="000";
 signal PCControl: STD_LOGIC_VECTOR(2 downto 0):="000";
-signal RAControl: STD_LOGIC_VECTOR(2 downto 0):="00000";
+signal RAControl: STD_LOGIC_VECTOR(4 downto 0):="00000";
 
 signal RegX: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal RegY: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
@@ -124,6 +126,9 @@ signal T: STD_LOGIC:='0';
 
 signal state: integer range 0 to 15:=0;
 signal fake_ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
+
+signal start: STD_LOGIC:='0';
+shared variable count: integer range 0 to 63:=0;
 
 begin
 
@@ -157,23 +162,55 @@ begin
 		CLK_KEY
 	);
 	
-	PCBlock_Entity: PCBlock port map (
-		RegX,
-		T,
-		fake_ins(10 downto 0),
-		PCControl,
-		PC,
-		CLK_KEY
-	);
+	--PCBlock_Entity: PCBlock port map (
+	--	RegX,
+	--	T,
+	--	fake_ins(10 downto 0),
+	--	PCControl,
+	--	PC,
+	--	CLK_KEY
+	--);
 	
-	ControlBlock_Entity: ControlBlock port map( 
-		Ins,
-		Finish,
-		CLK_KEY,
-		PCControl,
-		RAControl,
-		RamControl
-	);
+	--ControlBlock_Entity: ControlBlock port map( 
+	--	Ins,
+	--	Finish,
+	--	CLK_KEY,
+	--	PCControl,
+	--	RAControl,
+	--	RamControl
+	--);
+	
+	process(start,finish)
+	begin
+		if(finish'event and finish='1')then
+			start<='1';
+		end if;
+	end process;
+	
+	process(CLK_KEY)
+	begin
+		if(start='0')then
+			
+		elsif(CLK_KEY'event and CLK_KEY='1')then
+			case state is
+				when 0 =>
+					RamControl <= "000";
+					state <= 1;
+				when 1 =>
+					FPGA_LED <= fake_ins;
+					RamControl <= "001";
+					PC <= "0000000000000000"+count;
+					state <= 2;
+				when 2 =>
+					RamControl <= "011";
+					count := count+1;
+					state <= 0;
+				when others =>
+			end case;
+		end if;
+	end process;
+	
+
 	
 end Behavioral;
 
