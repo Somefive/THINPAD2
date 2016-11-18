@@ -86,27 +86,6 @@ signal tC: STD_LOGIC;
 
 begin
 
-	with SW_DIP(15 downto 13) select tA <=
-		"000" when "000",
-		"001" when "001",
-		"010" when others;
-	
-	with SW_DIP(15 downto 13) select tB <=
-		"000" when "000",
-		"001" when "001",
-		"010" when others;
-		
-	process(tA,tB,CLK_FROM_KEY)
-	begin
-	if(CLK_FROM_KEY'event and CLK_FROM_KEY='0')then
-		if(tA=tB)then
-			tC<='1';
-		else
-			tC<='0';
-		end if;
-	end if;
-	end process;
-
 	CPU_ENTITY: CPU port map ( 
 		SW_DIP,
 		RAM1DATA,

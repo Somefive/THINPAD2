@@ -132,72 +132,7 @@ begin
 		CLK_KEY
 	);
 
-	process(CLK_KEY)
-	begin
-		if(CLK_KEY'event and CLK_KEY='1')then
-			case state is
-				when 0 => --period:3
-					ALU <= "11011111"&SW_DIP(7 downto 0);
-					RegX <= "00001111"&SW_DIP(15 downto 8);
-					RegY <= "11110000"&SW_DIP(15 downto 8);
-					RamControl <= "101";
-					state <= 1;
-				when 1 => --period:4
-					RamControl <= "111";
-					state <= 2;
-				when 2 => --period:5
-					if(Finish='1')then
-						RamControl <= "001";
-						PC <= "11011111"&SW_DIP(7 downto 0);
-						state <= 3;
-					end if;
-				when 3 => --period:1
-					RamControl <= "011";
-					state <= 4;
-				when 4 => --period:2
-					RamControl <= "000";
-					state <= 5;
-				when 5 => --period:3
-					FPGA_LED <= Ins;
-					ALU <= "11011111"&SW_DIP(7 downto 0);
-					RegX <= "00001111"&SW_DIP(15 downto 8);
-					RegY <= "11110000"&SW_DIP(15 downto 8);
-					RamControl <= "110";
-					state <= 6;
-				when 6 => --period:4
-					RamControl <= "111";
-					state <= 7;
-				when 7 => --period:5
-					if(Finish='1')then
-						RamControl <= "001";
-						PC <= "11011111"&SW_DIP(7 downto 0);
-						state <= 8;
-					end if;
-				when 8 => --period:1
-					RamControl <= "011";
-					state <= 9;
-				when 9 => --period:2
-					RamControl <= "000";
-					state <= 10;
-				when 10 => --period:3
-					FPGA_LED <= Ins;
-					RamControl <= "010";
-					ALU<="11011111"&SW_DIP(7 downto 0);
-					state <= 11;
-				when 11 => --period:4
-					RamControl <= "100";
-					state <= 12;
-				when 12 => --period:5
-					if(Finish='1')then
-						RamControl <= "000";
-						state <= 13;
-					end if;
-				when others => 
-					FPGA_LED <= Output;
-					state <= 0;
-			end case;
-		end if;
-	end process;
+	
 	
 end Behavioral;
 
