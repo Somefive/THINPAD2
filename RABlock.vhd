@@ -39,7 +39,8 @@ entity RABlock is
            RegX : out  STD_LOGIC_VECTOR (15 downto 0);
            RegY : out  STD_LOGIC_VECTOR (15 downto 0);
            T : out  STD_LOGIC;
-           ALU : out  STD_LOGIC_VECTOR (15 downto 0));
+           ALU : out  STD_LOGIC_VECTOR (15 downto 0)£»
+			  CLK : in STD_LOGIC);
 end RABlock;
 
 architecture Behavioral of RABlock is
@@ -86,7 +87,7 @@ begin
 	
 	process(RAControl, Rx, Ry)
 	begin
-		if(RAControl(0)'event and RAControl(0)='1')then
+		if(CLK'event and CLK='1')then
 		case RAControl is
 			when "00001" =>
 				case ImmLong(10 downto 8) is

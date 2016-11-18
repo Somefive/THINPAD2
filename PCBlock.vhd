@@ -34,9 +34,10 @@ entity PCBlock is
     Port ( RegX : in  STD_LOGIC_VECTOR (15 downto 0);
            T : in  STD_LOGIC;
            ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
-           PCControl : in  STD_LOGIC_VECTOR (2 downto 0);
+           PCControl : in  STD_LOGIC_VECTOR (3 downto 0);
            PC : out  STD_LOGIC_VECTOR (15 downto 0));
 end PCBlock;
+
 
 architecture Behavioral of PCBlock is
 signal RegPC : std_logic_vector(15 downto 0):="0000000000000000";
@@ -55,7 +56,7 @@ begin
 	process(PCControl)
 	begin
 		if(PCControl(0)'event and PCControl(0)='1')then
-			case PCControl is
+			case PCControl(3 downto 1) is
 				when "001" =>
 					RegPC <= RegPC + 1;
 				when "010" =>

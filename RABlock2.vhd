@@ -39,7 +39,8 @@ entity RABlock2 is
            RegX : out  STD_LOGIC_VECTOR (15 downto 0);
            RegY : out  STD_LOGIC_VECTOR (15 downto 0);
            T : out  STD_LOGIC;
-           ALU : out  STD_LOGIC_VECTOR (15 downto 0));
+           ALU : out  STD_LOGIC_VECTOR (15 downto 0);
+			  CLK : in STD_LOGIC);
 end RABlock2;
 
 architecture Behavioral of RABlock2 is
@@ -64,7 +65,6 @@ shared variable ALUResult : std_logic_vector(15 downto 0):="0000000000000000";
 shared variable DestReg   : std_logic_vector(3 downto 0):="0000";
 
 begin
-	
 	with ImmLong(10 downto 8) select Rx <=
 			Reg0 when "000",
 			Reg1 when "001",
@@ -91,463 +91,141 @@ begin
 	RegY <= Ry;
 	T <= RegT;
 	
-	process(RAControl, Rx, RY)
+	process(CLK, RAControl)
 	begin
-		case RAControl is
-			when "00001" =>
-				DestReg := '0'&ImmLong(10 downto 8);
-				ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-			when "00010" =>
-				DestReg := '0'&ImmLong(7 downto 5);
-				ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-			when "00011" =>
-				DestReg := "1001";
-				ALUResult := std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-			when "00100" =>
-				DestReg := '0'&ImmLong(10 downto 8);
-				ALUResult := RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-			when "00101" =>
-				DestReg := '0'&ImmLong(4 downto 2);
-				ALUResult := Rx + Ry;
-			when "00110" =>
-				DestReg := '0'&ImmLong(10 downto 8);
-				ALUResult := Rx and Ry;
-			when "00111" =>
-				DestReg := "1010";
-				if(Rx = Ry)then
-					ALUResult := '0';
-				else
-					ALUResult := '1';
-				end if;
-			when "01000" =>
-				DestReg := "1010";
-				if(Rx = std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16))) then
-					ALUResult := '0';
-				else
-					ALUResult := '1';
-				end if;
-			when "01001" =>
-				DestReg := "1011"; -- RegX
-				ALUResult := Rx;
-			when "01010" =>
-				DestReg := '0'&ImmLong(10 downto 8);
-				ALUResult := "00000000"&ImmLong(7 downto 0);
-			when "01011" =>
-				DestReg := "1100"; --ALU
-				ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(4 downto 0)), 16));
-			when "01100" =>
-			when "01101" =>
-			when "01110" =>
-			when "01111" =>
-			when "10000" =>
-			when "10001" =>
-			when "10010" =>
-			when "10011" =>
-			when "10100" =>
-			
-			when others =>
-			
-	end process;
-	process(RAControl, Rx, Ry)
-	begin
-		case RAControl is
-			when "00001" =>
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "001" =>
-						Reg1 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "010" =>
-						Reg2 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "011" =>
-						Reg3 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "100" =>
-						Reg4 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "101" =>
-						Reg5 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "110" =>
-						Reg6 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "111" =>
-						Reg7 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when others =>
-						
-				end case;
-			when "00010" =>
-				case ImmLong(7 downto 5) is
-					when "000" =>
-						Reg0 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "001" =>
-						Reg1 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "010" =>
-						Reg2 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "011" =>
-						Reg3 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "100" =>
-						Reg4 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "101" =>
-						Reg5 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "110" =>
-						Reg6 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "111" =>
-						Reg7 <= Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when others =>
-						
-				end case;
-			when "00011" =>
-				RegSP <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-			when "00100" =>
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "001" =>
-						Reg1 <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "010" =>
-						Reg2 <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "011" =>
-						Reg3 <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "100" =>
-						Reg4 <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "101" =>
-						Reg5 <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "110" =>
-						Reg6 <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when "111" =>
-						Reg7 <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-					when others =>
-						
-				end case;
-			when "00101" =>
-				case ImmLong(4 downto 2) is
-					when "000" =>
-						Reg0 <= Rx + Ry;
-					when "001" =>
-						Reg1 <= Rx + Ry;
-					when "010" =>
-						Reg2 <= Rx + Ry;
-					when "011" =>
-						Reg3 <= Rx + Ry;
-					when "100" =>
-						Reg4 <= Rx + Ry;
-					when "101" =>
-						Reg5 <= Rx + Ry;
-					when "110" =>
-						Reg6 <= Rx + Ry;
-					when "111" =>
-						Reg7 <= Rx + Ry;
-					when others =>
-					
-				end case;
-			when "00110" =>
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= Rx and Ry;
-					when "001" =>
-						Reg1 <= Rx and Ry;
-					when "010" =>
-						Reg2 <= Rx and Ry;
-					when "011" =>
-						Reg3 <= Rx and Ry;
-					when "100" =>
-						Reg4 <= Rx and Ry;
-					when "101" =>
-						Reg5 <= Rx and Ry;
-					when "110" =>
-						Reg6 <= Rx and Ry;
-					when "111" =>
-						Reg7 <= Rx and Ry;
-					when others =>
-						
-				end case;
-			when "00111" =>
-				if(Rx = Ry)then
-					RegT <= '0';
-				else
-					RegT <= '1';
-				end if;
-			when "01000" =>
-				if(Rx = std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16))) then
-					RegT <= '0';
-				else
-					RegT <= '1';
-				end if;
-			when "01001" =>
-				RegX <= Rx;
-			when "01010" =>
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= "00000000"&ImmLong(7 downto 0);
-					when "001" =>
-						Reg1 <= "00000000"&ImmLong(7 downto 0);
-					when "010" =>
-						Reg2 <= "00000000"&ImmLong(7 downto 0);
-					when "011" =>
-						Reg3 <= "00000000"&ImmLong(7 downto 0);
-					when "100" =>
-						Reg4 <= "00000000"&ImmLong(7 downto 0);
-					when "101" =>
-						Reg5 <= "00000000"&ImmLong(7 downto 0);
-					when "110" =>
-						Reg6 <= "00000000"&ImmLong(7 downto 0);
-					when "111" =>
-						Reg7 <= "00000000"&ImmLong(7 downto 0);
-					when others =>
-						
-				end case;
-			when "01011" =>
-				ALU <= Rx + std_logic_vector(resize(signed(ImmLong(4 downto 0)), 16));
-			when "01100" =>
-				ALU <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-			when "01101" =>
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= RegIH;
-					when "001" =>
-						Reg1 <= RegIH;
-					when "010" =>
-						Reg2 <= RegIH;
-					when "011" =>
-						Reg3 <= RegIH;
-					when "100" =>
-						Reg4 <= RegIH;
-					when "101" =>
-						Reg5 <= RegIH;
-					when "110" =>
-						Reg6 <= RegIH;
-					when "111" =>
-						Reg7 <= RegIH;
-					when others =>
-						
-				end case;
-			when "01110" =>
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= PC;
-					when "001" =>
-						Reg1 <= PC;
-					when "010" =>
-						Reg2 <= PC;
-					when "011" =>
-						Reg3 <= PC;
-					when "100" =>
-						Reg4 <= PC;
-					when "101" =>
-						Reg5 <= PC;
-					when "110" =>
-						Reg6 <= PC;
-					when "111" =>
-						Reg7 <= PC;
-					when others =>
-						
-				end case;
-			when "01111" =>
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= Ry;
-					when "001" =>
-						Reg1 <= Ry;
-					when "010" =>
-						Reg2 <= Ry;
-					when "011" =>
-						Reg3 <= Ry;
-					when "100" =>
-						Reg4 <= Ry;
-					when "101" =>
-						Reg5 <= Ry;
-					when "110" =>
-						Reg6 <= Ry;
-					when "111" =>
-						Reg7 <= Ry;
-					when others =>
-						
-				end case;
-			when "10000" =>
-				RegIH <= Rx;
-			when "10001" =>
-				RegSP <= Rx;
-			when "10010" =>
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= "0000000000000000" - Ry;
-					when "001" =>
-						Reg1 <= "0000000000000000" - Ry;
-					when "010" =>
-						Reg2 <= "0000000000000000" - Ry;
-					when "011" =>
-						Reg3 <= "0000000000000000" - Ry;
-					when "100" =>
-						Reg4 <= "0000000000000000" - Ry;
-					when "101" =>
-						Reg5 <= "0000000000000000" - Ry;
-					when "110" =>
-						Reg6 <= "0000000000000000" - Ry;
-					when "111" =>
-						Reg7 <= "0000000000000000" - Ry;
-					when others =>
-						
-				end case;
-			when "10011" =>
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= Rx or Ry;
-					when "001" =>
-						Reg1 <= Rx or Ry;
-					when "010" =>
-						Reg2 <= Rx or Ry;
-					when "011" =>
-						Reg3 <= Rx or Ry;
-					when "100" =>
-						Reg4 <= Rx or Ry;
-					when "101" =>
-						Reg5 <= Rx or Ry;
-					when "110" =>
-						Reg6 <= Rx or Ry;
-					when "111" =>
-						Reg7 <= Rx or Ry;
-					when others =>
-						
-				end case;
-			when "10100" =>
-				if(ImmLong(4 downto 2) = "000")then
-					ShiftImmediate <= "0000000000001000";
-				else
-					ShiftImmediate <= "0000000000000"&ImmLong(4 downto 2);
-				end if;
-				
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= to_stdlogicvector(to_bitvector(Rx) sll conv_integer(ShiftImmediate));
-					when "001" =>
-						Reg1 <= to_stdlogicvector(to_bitvector(Rx) sll conv_integer(ShiftImmediate));
-					when "010" =>
-						Reg2 <= to_stdlogicvector(to_bitvector(Rx) sll conv_integer(ShiftImmediate));
-					when "011" =>
-						Reg3 <= to_stdlogicvector(to_bitvector(Rx) sll conv_integer(ShiftImmediate));
-					when "100" =>
-						Reg4 <= to_stdlogicvector(to_bitvector(Rx) sll conv_integer(ShiftImmediate));
-					when "101" =>
-						Reg5 <= to_stdlogicvector(to_bitvector(Rx) sll conv_integer(ShiftImmediate));
-					when "110" =>
-						Reg6 <= to_stdlogicvector(to_bitvector(Rx) sll conv_integer(ShiftImmediate));
-					when "111" =>
-						Reg7 <= to_stdlogicvector(to_bitvector(Rx) sll conv_integer(ShiftImmediate));
-					when others =>
-						
-				end case;
-			when "10101" =>
-				case ImmLong(7 downto 5) is
-					when "000" =>
-						Reg0 <= to_stdlogicvector(to_bitvector(Ry) sll conv_integer(Rx));
-					when "001" =>
-						Reg1 <= to_stdlogicvector(to_bitvector(Ry) sll conv_integer(Rx));
-					when "010" =>
-						Reg2 <= to_stdlogicvector(to_bitvector(Ry) sll conv_integer(Rx));
-					when "011" =>
-						Reg3 <= to_stdlogicvector(to_bitvector(Ry) sll conv_integer(Rx));
-					when "100" =>
-						Reg4 <= to_stdlogicvector(to_bitvector(Ry) sll conv_integer(Rx));
-					when "101" =>
-						Reg5 <= to_stdlogicvector(to_bitvector(Ry) sll conv_integer(Rx));
-					when "110" =>
-						Reg6 <= to_stdlogicvector(to_bitvector(Ry) sll conv_integer(Rx));
-					when "111" =>
-						Reg7 <= to_stdlogicvector(to_bitvector(Ry) sll conv_integer(Rx));
-					when others =>
-						
-				end case;
-			when "10110" =>
-				if(ImmLong(4 downto 2) = "000")then
-					ShiftImmediate <= "0000000000001000";
-				else
-					ShiftImmediate <= "0000000000000"&ImmLong(4 downto 2);
-				end if;
-				
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= to_stdlogicvector(to_bitvector(Rx) sra conv_integer(ShiftImmediate));
-					when "001" =>
-						Reg1 <= to_stdlogicvector(to_bitvector(Rx) sra conv_integer(ShiftImmediate));
-					when "010" =>
-						Reg2 <= to_stdlogicvector(to_bitvector(Rx) sra conv_integer(ShiftImmediate));
-					when "011" =>
-						Reg3 <= to_stdlogicvector(to_bitvector(Rx) sra conv_integer(ShiftImmediate));
-					when "100" =>
-						Reg4 <= to_stdlogicvector(to_bitvector(Rx) sra conv_integer(ShiftImmediate));
-					when "101" =>
-						Reg5 <= to_stdlogicvector(to_bitvector(Rx) sra conv_integer(ShiftImmediate));
-					when "110" =>
-						Reg6 <= to_stdlogicvector(to_bitvector(Rx) sra conv_integer(ShiftImmediate));
-					when "111" =>
-						Reg7 <= to_stdlogicvector(to_bitvector(Rx) sra conv_integer(ShiftImmediate));
-					when others =>
-						
-				end case;
-			when "10111" =>
-				case ImmLong(4 downto 2) is
-					when "000" =>
-						Reg0 <= Rx - Ry;
-					when "001" =>
-						Reg1 <= Rx - Ry;
-					when "010" =>
-						Reg2 <= Rx - Ry;
-					when "011" =>
-						Reg3 <= Rx - Ry;
-					when "100" =>
-						Reg4 <= Rx - Ry;
-					when "101" =>
-						Reg5 <= Rx - Ry;
-					when "110" =>
-						Reg6 <= Rx - Ry;
-					when "111" =>
-						Reg7 <= Rx - Ry;
-					when others =>
-					
-				end case;
-			when "11000" =>
-				case ImmLong(10 downto 8) is
-					when "000" =>
-						Reg0 <= Data;
-					when "001" =>
-						Reg1 <= Data;
-					when "010" =>
-						Reg2 <= Data;
-					when "011" =>
-						Reg3 <= Data;
-					when "100" =>
-						Reg4 <= Data;
-					when "101" =>
-						Reg5 <= Data;
-					when "110" =>
-						Reg6 <= Data;
-					when "111" =>
-						Reg7 <= Data;
-					when others =>
-						
-				end case;
-			when "11001" =>
-				case ImmLong(7 downto 5) is
-					when "000" =>
-						Reg0 <= Data;
-					when "001" =>
-						Reg1 <= Data;
-					when "010" =>
-						Reg2 <= Data;
-					when "011" =>
-						Reg3 <= Data;
-					when "100" =>
-						Reg4 <= Data;
-					when "101" =>
-						Reg5 <= Data;
-					when "110" =>
-						Reg6 <= Data;
-					when "111" =>
-						Reg7 <= Data;
-					when others =>
-						
-				end case;
-			when others =>
-		end case;
+		if(CLK'event and CLK='1')then
+			case RAControl is
+				when "00001" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+				when "00010" =>
+					DestReg := '0'&ImmLong(7 downto 5);
+					ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+				when "00011" =>
+					DestReg := "1001";--RegSP
+					ALUResult := RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+				when "00100" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					ALUResult := RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+				when "00101" =>
+					DestReg := '0'&ImmLong(4 downto 2);
+					ALUResult := Rx + Ry;
+				when "00110" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					ALUResult := Rx and Ry;
+				when "00111" =>
+					DestReg := "1010";--RegT
+					if(Rx = Ry)then
+						ALUResult := "0000000000000000";
+					else
+						ALUResult := "0000000000000001";
+					end if;
+				when "01000" =>
+					DestReg := "1010";--RegT
+					if(Rx = std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16))) then
+						ALUResult := "0000000000000000";
+					else
+						ALUResult := "0000000000000001";
+					end if;
+				when "01001" =>
+					DestReg := "1011"; -- RegX
+					ALUResult := Rx;
+				when "01010" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					ALUResult := "00000000"&ImmLong(7 downto 0);
+				when "01011" =>
+					DestReg := "1100"; --ALU
+					ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(4 downto 0)), 16));
+				when "01100" =>
+					DestReg := "1100"; --ALU
+					ALUResult := RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+				when "01101" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					ALUResult := RegIH;
+				when "01110" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					ALUResult := PC;
+				when "01111" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					ALUResult := Ry;
+				when "10000" =>
+					DestReg := "1101"; --RegIH
+					ALUResult := Rx;
+				when "10001" =>
+					DestReg := "1001"; --RegSP
+					ALUResult := Rx;
+				when "10010" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					ALUResult := "0000000000000000" - Ry;
+				when "10011" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					ALUResult := Rx or Ry;
+				when "10100" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					if(ImmLong(4 downto 2) = "000")then
+						ALUResult := to_stdlogicvector(to_bitvector(Rx) sll 8);
+					else
+						ALUResult := to_stdlogicvector(to_bitvector(Rx) sll conv_integer(ImmLong(4 downto 2)));
+					end if;
+				when "10101" =>
+					DestReg := '0'&ImmLong(7 downto 5);
+					ALUResult := to_stdlogicvector(to_bitvector(Ry) sll conv_integer(Rx));
+				when "10110" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					if(ImmLong(4 downto 2) = "000")then
+						ALUResult := to_stdlogicvector(to_bitvector(Rx) sra 8);
+					else
+						ALUResult := to_stdlogicvector(to_bitvector(Rx) sra conv_integer(ImmLong(4 downto 2)));
+					end if;
+				when "10111" =>
+					DestReg := '0'&ImmLong(4 downto 2);
+					ALUResult := Rx - Ry;
+				when "11000" =>
+					DestReg := '0'&ImmLong(10 downto 8);
+					ALUResult := Data;
+				when "11001" =>
+					DestReg := '0'&ImmLong(7 downto 5);
+					ALUResult := Data;
+				when others =>
+			end case;
+		end if;
 	end process;
 	
-	T <= RegT;
+	process(CLK)
+	begin
+		if(CLK'event and CLK='0')then
+			case DestReg is
+				when "0000" =>
+					Reg0 <= ALUResult;
+				when "0001" =>
+					Reg1 <= ALUResult;
+				when "0010" =>
+					Reg2 <= ALUResult;
+				when "0011" =>
+					Reg3 <= ALUResult;
+				when "0100" =>
+					Reg4 <= ALUResult;
+				when "0101" =>
+					Reg5 <= ALUResult;
+				when "0110" =>
+					Reg6 <= ALUResult;
+				when "0111" =>
+					Reg7 <= ALUResult;
+				when "1001" =>
+					RegSP <= ALUResult;
+				when "1010" =>
+					RegT <= ALUResult(0);
+					T <= RegT;
+				when "1011" =>
+					RegX <= ALUResult;
+				when "1100" =>
+					ALU <= ALUResult;
+					RegY <= Ry;
+				when "1101" =>
+					RegIH <= ALUResult;
+				when others =>
+			end case;
+		end if;
+	end process;
 end Behavioral;
 
