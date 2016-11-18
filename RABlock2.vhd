@@ -31,7 +31,7 @@ use ieee.numeric_std.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity RABlock is
+entity RABlock2 is
     Port ( ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
            PC : in  STD_LOGIC_VECTOR (15 downto 0);
            Data : in  STD_LOGIC_VECTOR (15 downto 0);
@@ -40,9 +40,9 @@ entity RABlock is
            RegY : out  STD_LOGIC_VECTOR (15 downto 0);
            T : out  STD_LOGIC;
            ALU : out  STD_LOGIC_VECTOR (15 downto 0));
-end RABlock;
+end RABlock2;
 
-architecture Behavioral of RABlock is
+architecture Behavioral of RABlock2 is
 
 signal Reg0: STD_LOGIC_VECTOR (15 downto 0) := "0000000000000000";
 signal Reg1: STD_LOGIC_VECTOR (15 downto 0) := "0000000000000000";
@@ -59,6 +59,9 @@ signal RegT : STD_LOGIC := '0';
 signal Rx: STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
 signal Ry: STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
 signal ShiftImmediate : STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
+
+shared variable ALUResult : std_logic_vector(15 downto 0):="0000000000000000";
+shared variable DestReg   : std_logic_vector(3 downto 0):="0000";
 
 begin
 	
@@ -84,9 +87,65 @@ begin
 			Reg7 when "111",
 			"0000000000000000" when others;
 	
+	process(RAControl)
+	begin
+		case RAControl is
+			when "00001" =>
+				DestReg := '0'&ImmLong(10 downto 8);
+				ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+			when "00010" =>
+				DestReg := '0'&ImmLong(7 downto 5);
+				ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+			when "00011" =>
+				DestReg := "1001";
+				ALUResult := std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+			when "00100" =>
+				DestReg := '0'&ImmLong(10 downto 8);
+				ALUResult := RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+			when "00101" =>
+				DestReg := '0'&ImmLong(4 downto 2);
+				ALUResult := Rx + Ry;
+			when "00110" =>
+				DestReg := '0'&ImmLong(10 downto 8);
+				ALUResult := Rx and Ry;
+			when "00111" =>
+				DestReg := "1010";
+				if(Rx = Ry)then
+					ALUResult := '0';
+				else
+					ALUResult := '1';
+				end if;
+			when "01000" =>
+				DestReg := "1010";
+				if(Rx = std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16))) then
+					ALUResult := '0';
+				else
+					ALUResult := '1';
+				end if;
+			when "01001" =>
+				DestReg := "1011"; -- RegX
+				ALUResult := Rx;
+			when "01010" =>
+				DestReg := '0'&ImmLong(10 downto 8);
+				ALUResult := "00000000"&ImmLong(7 downto 0);
+			when "01011" =>
+				DestReg := "1100"; --ALU
+				ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(4 downto 0)), 16));
+			when "01100" =>
+			when "01101" =>
+			when "01110" =>
+			when "01111" =>
+			when "10000" =>
+			when "10001" =>
+			when "10010" =>
+			when "10011" =>
+			when "10100" =>
+			
+			when others =>
+			
+	end process;
 	process(RAControl, Rx, Ry)
 	begin
-		if(RAControl(0)'event and RAControl(0)='1')then
 		case RAControl is
 			when "00001" =>
 				case ImmLong(10 downto 8) is
@@ -483,7 +542,6 @@ begin
 				end case;
 			when others =>
 		end case;
-		end if;
 	end process;
 	
 	T <= RegT;

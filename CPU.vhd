@@ -89,16 +89,41 @@ component RamBlock is
            CLK : in  STD_LOGIC);
 end component;
 
+component PCBlock is
+    Port ( RegX : in  STD_LOGIC_VECTOR (15 downto 0);
+           T : in  STD_LOGIC;
+           ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
+           PCControl : in  STD_LOGIC_VECTOR (2 downto 0);
+           PC : buffer  STD_LOGIC_VECTOR (15 downto 0);
+			  CLK : in STD_LOGIC);
+end component;
+
+component ControlBlock is
+    Port ( Instruction : in  STD_LOGIC_VECTOR(15 downto 0);
+           Finish : in  STD_LOGIC;
+           CLK : in  STD_LOGIC;
+           PCControl : out  STD_LOGIC_VECTOR(2 downto 0);
+           RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
+           RamControl : out  STD_LOGIC_VECTOR(2 downto 0));
+end component;
+
+signal RamControl: STD_LOGIC_VECTOR(2 downto 0):="000";
+signal PCControl: STD_LOGIC_VECTOR(2 downto 0):="000";
+signal RAControl: STD_LOGIC_VECTOR(2 downto 0):="00000";
+
 signal RegX: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal RegY: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal ALU: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal PC: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
-signal RamControl: STD_LOGIC_VECTOR(2 downto 0):="000";
+
 signal Finish: STD_LOGIC;
 signal Ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal Output: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
+signal T: STD_LOGIC:='0';
+
 
 signal state: integer range 0 to 15:=0;
+signal fake_ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 
 begin
 
@@ -112,7 +137,7 @@ begin
 		RamControl,
 		Finish,
 		Output,
-		Ins,
+		fake_ins,
 		RAM1ADDR,
 		RAM1DATA,
 		RAM1_EN,
@@ -131,8 +156,24 @@ begin
 		DYP0,
 		CLK_KEY
 	);
-
 	
+	PCBlock_Entity: PCBlock port map (
+		RegX,
+		T,
+		fake_ins(10 downto 0),
+		PCControl,
+		PC,
+		CLK_KEY
+	);
+	
+	ControlBlock_Entity: ControlBlock port map( 
+		Ins,
+		Finish,
+		CLK_KEY,
+		PCControl,
+		RAControl,
+		RamControl
+	);
 	
 end Behavioral;
 
