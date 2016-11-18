@@ -77,6 +77,7 @@ component CPU is
            TSRE : in  STD_LOGIC;
            WRN : out  STD_LOGIC;
            CLK : in  STD_LOGIC;
+			  CLK_KEY : in STD_LOGIC;
            RESET : in  STD_LOGIC);
 end component;
 
@@ -126,6 +127,7 @@ begin
 		TBRE,
 		TSRE,
 		WRN,
+		CLK1,
 		CLK_FROM_KEY,
 		RESET);
 

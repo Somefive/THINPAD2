@@ -50,6 +50,7 @@ entity CPU is
            TSRE : in  STD_LOGIC;
            WRN : out  STD_LOGIC;
            CLK : in  STD_LOGIC;
+			  CLK_KEY : in STD_LOGIC;
            RESET : in  STD_LOGIC);
 end CPU;
 
@@ -84,8 +85,8 @@ component RamBlock is
            TBRE : in  STD_LOGIC;
            TSRE : in  STD_LOGIC;
            WRN : out  STD_LOGIC;
-           CLK : in  STD_LOGIC;
-			  DYP : out STD_LOGIC_VECTOR(6 downto 0));
+			  DYP : out STD_LOGIC_VECTOR(6 downto 0);
+           CLK : in  STD_LOGIC);
 end component;
 
 signal RegX: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
@@ -127,13 +128,13 @@ begin
 		TBRE,
 		TSRE,
 		WRN,
-		CLK,
-		DYP0
+		DYP0,
+		CLK_KEY
 	);
 
-	process(CLK)
+	process(CLK_KEY)
 	begin
-		if(CLK'event and CLK='1')then
+		if(CLK_KEY'event and CLK_KEY='1')then
 			case state is
 				when 0 => --period:3
 					ALU <= "11011111"&SW_DIP(7 downto 0);

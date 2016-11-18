@@ -53,8 +53,8 @@ entity RamBlock is
            TBRE : in  STD_LOGIC;
            TSRE : in  STD_LOGIC;
            WRN : out  STD_LOGIC;
-           CLK : in  STD_LOGIC;
-			  DYP : out STD_LOGIC_VECTOR(6 downto 0));
+			  DYP : out STD_LOGIC_VECTOR(6 downto 0);
+           CLK : in  STD_LOGIC);
 end RamBlock;
 
 architecture Behavioral of RamBlock is
