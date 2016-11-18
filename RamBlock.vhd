@@ -53,112 +53,165 @@ entity RamBlock is
            TBRE : in  STD_LOGIC;
            TSRE : in  STD_LOGIC;
            WRN : out  STD_LOGIC;
-           CLK : in  STD_LOGIC);
+           CLK : in  STD_LOGIC;
+			  DYP : out STD_LOGIC_VECTOR(6 downto 0));
 end RamBlock;
 
 architecture Behavioral of RamBlock is
+
+component DigitLights is
+    Port ( L : out  STD_LOGIC_VECTOR (6 downto 0);
+           NUMBER : in  INTEGER);
+end component;
+
 signal state: integer range 0 to 7:=0;
+signal uart_buf: STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+
 begin
 	
-	RAM1_EN <= '1';
-	RAM1_OE <= '1';
-	RAM1_WE <= '1';
-	RAM2_EN <= '0';
+	DL: DigitLights port map (DYP, state);
+	
+	RAM2_EN <= '1';
+	RAM2_OE <= '1';
+	RAM2_WE <= '1';
+	RAM2ADDR <= (others => '0');
+	RAM2DATA <= (others => 'Z');
 	
 	process(RamControl,CLK)
 	begin
 		if(CLK'event and CLK='1')then
 			case RamControl is
 				when "001" => -- Read Ins
-					RAM2ADDR <= "00"&PC;
-					RAM2DATA <= (others => 'Z');
-					RAM2_OE <= '0';
-					FINISH <= '0';
+					RAM1ADDR <= "00"&PC;
+					RAM1DATA <= (others => 'Z');
+					RAM1_OE <= '0';
+					RAM1_EN <= '0';
+					RAM1_WE <= '1';
+					WRN <= '1';
+					RDN <= '1';
 				when "011" => -- Finish Read Ins
-					Ins <= RAM2DATA;
-					RAM2_OE <= '1';
+					Ins <= RAM1DATA;
+					RAM1_OE <= '1';
+					RAM1_EN <= '1';
 				when "010" => -- Read Data
-					if(ALU(15 downto 1)="110111110000000")then
-						RAM1DATA <= (others => 'Z');
+					RAM1DATA <= (others => 'Z');
+					FINISH <= '0';
+					if(ALU(15 downto 1)="110111110000000")then -- UART Read
+						RAM1_EN <= '1';
+						RAM1_OE <= '1';
+						RAM1_WE <= '1';
+						WRN <= '1';
 						RDN <= '1';
 						state <= 1;
-					else
-						RAM2ADDR <= "00"&ALU;
-						RAM2DATA <= (others => 'Z');
-						RAM2_OE <= '0';
+					else -- Ram Read
+						RAM1ADDR <= "00"&ALU;
+						RAM1_EN <= '0';
+						RAM1_OE <= '0';
+						RAM1_WE <= '1';
+						WRN <= '1';
+						RDN <= '1';
 						state <= 0;
 					end if;
-					FINISH <= '0';
 				when "100" => -- Finish Read Data
+					RAM1_EN <= '1';
+					RAM1_OE <= '1';
+					RAM1_WE <= '1';
+					WRN <= '1';
+					FINISH <= '0';
 					case state is
-						when 0 =>
-							Output <= RAM2DATA;
+						when 0 => -- RAM Read Finish
+							Output <= RAM1DATA;
 							RDN <= '1';
 							FINISH <= '1';
-						when 1 =>
-							if(DATA_READY='0')then
+						when 1 => -- UART Reading
+							if(DATA_READY='0')then -- Not Ready
 								RDN<='1';
 								RAM1DATA <= (others => 'Z');
-							else
+							else -- Ready
 								RDN<='0';
 								state <= 2;
 							end if;
-						when 2 =>
+						when 2 => -- UART Output
 							Output <= "00000000"&RAM1DATA(7 downto 0);
-							RDN<='1';
-							FINISH<='1';
+							RDN <= '1';
+							FINISH <= '1';
 						when others =>
 					end case;
 				when "101" => --Write RegX
-					if(ALU(15 downto 1)="110111110000000")then
+					FINISH <= '0';
+					if(ALU(15 downto 1)="110111110000000")then --UART Write
+						RAM1_EN <= '1';
+						RAM1_OE <= '1';
+						RAM1_WE <= '1';
+						RDN <= '1';
+						WRN <= '1';
 						if(ALU(0)='0')then
-							RAM1DATA <= RegX;
+							uart_buf <= RegX(7 downto 0);
 						else
-							RAM1DATA <= "000000000000000"&DATA_READY;
+							uart_buf <= "0000000"&DATA_READY;
 						end if;
-						WRN <= '0';
 						state <= 1;
-					else
-						RAM2ADDR <= "00"&ALU;
-						RAM2DATA <= RegX;
-						RAM2_WE <= '0';
+					else -- Ram Write
+						RAM1ADDR <= "00"&ALU;
+						RAM1DATA <= RegX;
+						RAM1_EN <= '0';
+						RAM1_OE <= '1';
+						RAM1_WE <= '0';
+						RDN <= '1';
+						WRN <= '1';
 						state <= 0;
 					end if;
 				when "110" => --Write RegY
-					if(ALU(15 downto 1)="110111110000000")then
+					FINISH <= '0';
+					if(ALU(15 downto 1)="110111110000000")then --UART Write
+						RAM1_EN <= '1';
+						RAM1_OE <= '1';
+						RAM1_WE <= '1';
+						RDN <= '1';
+						WRN <= '1';
 						if(ALU(0)='0')then
-							RAM1DATA <= RegY;
+							uart_buf <= RegY(7 downto 0);
 						else
-							RAM1DATA <= "000000000000000"&DATA_READY;
+							uart_buf <= "0000000"&DATA_READY;
 						end if;
-						WRN <= '0';
 						state <= 1;
-					else
-						RAM2ADDR <= "00"&ALU;
-						RAM2DATA <= RegY;
-						RAM2_WE <= '0';
+					else -- Ram Write
+						RAM1ADDR <= "00"&ALU;
+						RAM1DATA <= RegY;
+						RAM1_EN <= '0';
+						RAM1_OE <= '1';
+						RAM1_WE <= '0';
+						RDN <= '1';
+						WRN <= '1';
 						state <= 0;
 					end if;
 				when "111" => --Finish Write Reg
+					RAM1_WE <= '1';
+					RAM1_EN <= '1';
+					RAM1_OE <= '1';
+					RDN <= '1';
+					WRN <= '1';
 					case state is
-						when 0 =>
-							WRN <= '1';
-							RAM2_WE <= '1';
+						when 0 => -- Finish Write
 							FINISH <= '1';
 						when 1 =>
-							WRN <= '1';
+							RAM1DATA(7 downto 0) <= uart_buf;
+							WRN <= '0';
+							state <= 2;
+						when 2 => -- UART Writing
 							if(TBRE='1')then
-								state <= 2;
+								state <= 3;
 							end if;
-						when 2 =>
+						when 3 => -- UART Writing
 							if(TSRE='1')then
 								state <= 0;
 							end if;
 						when others =>
 					end case;
 				when others =>
-					RAM2_WE <= '1';
-					RAM2_OE <= '1';
+					RAM1_WE <= '1';
+					RAM1_OE <= '1';
+					RAM1_EN <= '1';
 					WRN <= '1';
 					RDN <= '1';
 					FINISH <= '0';
