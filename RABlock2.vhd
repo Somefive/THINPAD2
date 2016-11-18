@@ -87,11 +87,7 @@ begin
 			Reg7 when "111",
 			"0000000000000000" when others;
 	
-	RegX <= Rx;
-	RegY <= Ry;
-	T <= RegT;
-	
-	process(CLK, RAControl)
+	process(RAControl)
 	begin
 		if(CLK'event and CLK='1')then
 			case RAControl is
@@ -215,16 +211,17 @@ begin
 					RegSP <= ALUResult;
 				when "1010" =>
 					RegT <= ALUResult(0);
-					T <= RegT;
 				when "1011" =>
 					RegX <= ALUResult;
 				when "1100" =>
 					ALU <= ALUResult;
-					RegY <= Ry;
 				when "1101" =>
 					RegIH <= ALUResult;
 				when others =>
 			end case;
+			T <= RegT;
+			RegY <= Ry;
+			RegX <= Rx;
 		end if;
 	end process;
 end Behavioral;

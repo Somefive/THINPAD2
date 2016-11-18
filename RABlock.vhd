@@ -39,7 +39,7 @@ entity RABlock is
            RegX : out  STD_LOGIC_VECTOR (15 downto 0);
            RegY : out  STD_LOGIC_VECTOR (15 downto 0);
            T : out  STD_LOGIC;
-           ALU : out  STD_LOGIC_VECTOR (15 downto 0)£»
+           ALU : out  STD_LOGIC_VECTOR (15 downto 0);
 			  CLK : in STD_LOGIC);
 end RABlock;
 

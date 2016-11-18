@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -81,11 +83,8 @@ component CPU is
            RESET : in  STD_LOGIC);
 end component;
 
-signal tA,tB: STD_LOGIC_VECTOR(2 downto 0);
-signal tC: STD_LOGIC;
-
 begin
-
+	
 	CPU_ENTITY: CPU port map ( 
 		SW_DIP,
 		RAM1DATA,
