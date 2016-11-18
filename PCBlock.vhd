@@ -39,33 +39,47 @@ entity PCBlock is
 end PCBlock;
 
 architecture Behavioral of PCBlock is
-	
+signal RegPC : std_logic_vector(15 downto 0):="0000000000000000";
+--signal NormalPC : std_logic_vector(15 downto 0) := "0000000000000000";
+--signal Imm10to0PC : std_logic_vector(15 downto 0) := "0000000000000000";
+--signal Imm7to0PC : std_logic_vector(15 downto 0) := "0000000000000000";
+--signal RegXPC : std_logic_vector(15 downto 0) := "0000000000000000";
+
 begin
+
+	--NormalPC <= RegPC + 1;
+	--Imm10TO0PC <= RegPC + std_logic_vector(resize(signed(ImmLong(10 downto 0)), 16));
+	--Imm7to0PC <= RegPC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+	--RegXPC <= RegPC + RegX;
+	
 	process(PCControl)
 	begin
-		case PCControl is
-			when "001" =>
-				PC <= PC + 1;
-			when "010" =>
-				PC <= PC + std_logic_vector(resize(signed(ImmLong(10 downto 0)), 16));
-			when "011" =>
-				if(RegX = '0') then
-					PC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-				end if;
-			when "100" =>
-				if(RegX /= '0') then
-					PC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-				end if;
-			when "101" =>
-				if(T = '0') then
-					PC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-				end if;
-			when "110" =>
-				PC <= PC + RegX;
-			when others =>
-				PC <= PC;
-		end case;
+		if(PCControl(0)'event and PCControl(0)='1')then
+			case PCControl is
+				when "001" =>
+					RegPC <= RegPC + 1;
+				when "010" =>
+					RegPC <= RegPC + std_logic_vector(resize(signed(ImmLong(10 downto 0)), 16));
+				when "011" =>
+					if(RegX = '0') then
+						RegPC <= RegPC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+					end if;
+				when "100" =>
+					if(RegX /= '0') then
+						RegPC <= RegPC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+					end if;
+				when "101" =>
+					if(T = '0') then
+						RegPC <= RegPC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+					end if;
+				when "110" =>
+					RegPC <= RegPC + RegX;
+				when others =>
+			end case;
+		end if;
 	end process;
+	
+	PC <= RegPC;
 		
 end Behavioral;
 

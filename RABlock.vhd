@@ -56,9 +56,9 @@ signal RegSP  : STD_LOGIC_VECTOR (15 downto 0) := "0000000000000000";
 signal RegIH  : STD_LOGIC_VECTOR (15 downto 0) := "0000000000000000";
 signal RegT : STD_LOGIC := '0';
 
-signal Rx: STD_LOGIC_VECTOR (15 downto 0);
-signal Ry: STD_LOGIC_VECTOR (15 downto 0);
-signal ShiftImmediate : STD_LOGIC_VECTOR (15 downto 0);
+signal Rx: STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
+signal Ry: STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
+signal ShiftImmediate : STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
 
 begin
 	
@@ -84,8 +84,9 @@ begin
 			Reg7 when "111",
 			"0000000000000000" when others;
 	
-	process(RAControl)
+	process(RAControl, Rx, Ry)
 	begin
+		if(RAControl(0)'event and RAControl(0)='1')then
 		case RAControl is
 			when "00001" =>
 				case ImmLong(10 downto 8) is
@@ -482,6 +483,7 @@ begin
 				end case;
 			when others =>
 		end case;
+		end if;
 	end process;
 	
 	T <= RegT;
