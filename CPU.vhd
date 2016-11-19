@@ -136,74 +136,79 @@ signal Output: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal T: STD_LOGIC:='0';
 
 
-signal state: integer range 0 to 15:=0;
+signal state: integer range 0 to 63:=0;
 signal fake_ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 
 signal start: STD_LOGIC:='0';
 shared variable count: integer range 0 to 63:=0;
 
+--Test RABlock2
+signal Data : std_logic_vector(15 downto 0):="0000000000000000";
+signal RABlock_Ins : std_logic_vector(10 downto 0) := "00000000000";
+signal RABlock_PC : std_logic_vector(15 downto 0) := "0000000000000000";
+
+
 begin
 
 	DL: DigitLights port map (DYP1, state);
 
-	RamBlock_Entity: RamBlock port map (
+--	RamBlock_Entity: RamBlock port map (
+--		RegX,
+--		RegY,
+--		ALU,
+--		PC,
+--		RamControl,
+--		Finish,
+--		Output,
+--		fake_ins,
+--		RAM1ADDR,
+--		RAM1DATA,
+--		RAM1_EN,
+--		RAM1_OE,
+--		RAM1_RW,
+--		RAM2ADDR,
+--		RAM2DATA,
+--		RAM2_EN,
+--		RAM2_OE,
+--		RAM2_RW,
+--		DATA_READY,
+--		RDN,
+--		TBRE,
+--		TSRE,
+--		WRN,
+--		DYP0,
+--		CLK_KEY
+--	);
+	
+--	PCBlock_Entity: PCBlock port map (
+--		RegX,
+--		T,
+--		fake_ins(10 downto 0),
+--		PCControl,
+--		PC,
+--		CLK_KEY
+--	);
+	
+--	ControlBlock_Entity: ControlBlock port map( 
+--		Ins,
+--		Finish,
+--		CLK_KEY,
+--		PCControl,
+--		RAControl,
+--		RamControl
+--	);
+	
+	RABlock_Entity: RABlock port map(
+		RABlock_Ins,
+		RABlock_PC,
+		Data,
+		RAControl,
 		RegX,
 		RegY,
-		ALU,
-		PC,
-		RamControl,
-		Finish,
-		Output,
-		fake_ins,
-		RAM1ADDR,
-		RAM1DATA,
-		RAM1_EN,
-		RAM1_OE,
-		RAM1_RW,
-		RAM2ADDR,
-		RAM2DATA,
-		RAM2_EN,
-		RAM2_OE,
-		RAM2_RW,
-		DATA_READY,
-		RDN,
-		TBRE,
-		TSRE,
-		WRN,
-		DYP0,
-		CLK_KEY
-	);
-	
-	PCBlock_Entity: PCBlock port map (
-		RegX,
-		T,
-		fake_ins(10 downto 0),
-		PCControl,
-		PC,
-		CLK_KEY
-	);
-	
-	ControlBlock_Entity: ControlBlock port map( 
-		Ins,
-		Finish,
-		CLK_KEY,
-		PCControl,
-		RAControl,
-		RamControl
-	);
-	
-	RABlock_Entity : RABlock port map(
-		fake_ins(10 downto 0),
-		PC,
-		Output,
-		RAControl,
-		RegX,
-		RegY,
 		T,
 		ALU,
-		CLK_KEY
-	);
-	
+		CLK_KEY);
+		
 --	process(start,finish)
 --	begin
 --		if(finish'event and finish='1')then
@@ -234,6 +239,193 @@ begin
 --		end if;
 --	end process;
 	
-	
+	process(CLK_KEY)
+	begin
+		if(CLK_KEY'event and CLK_KEY='0')then
+			case state is
+				when 0 =>
+					RAControl <= "00001";
+					RABlock_Ins  <= SW_DIP(10 downto 0);
+					RABlock_PC   <= "0000000000001001";
+					Data         <= "0000000000000110";
+					state <= 1;
+				when 1 =>
+					RAControl <= "11110";
+					state <= 2;
+				when 2 =>
+					RAControl <= "00010";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 3;
+				when 3 =>
+					RAControl <= "11110";
+					state <= 4;
+				when 4 =>
+					RAControl <= "00011";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 5;
+				when 5 =>
+					RAControl <= "11110";
+					state <= 6;
+				when 6 =>
+					RAControl <= "00100";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 7;
+				when 7 =>
+					RAControl <= "11110";
+					state <= 8;
+				when 8 =>
+					RAControl <= "00101";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 9;
+				when 9 =>
+					RAControl <= "11110";
+					state <= 10;
+				when 10 =>
+					RAControl <= "00110";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 11;
+				when 11 =>
+					RAControl <= "11110";
+					state <= 12;
+				when 12 =>												
+					RAControl <= "00111";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 13;
+				when 13 =>
+					RAControl <= "11110";
+					state <= 14;
+				when 14 =>
+					RAControl <= "01000";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 15;
+				when 15 =>
+					RAControl <= "11110";
+					state <= 16;
+				when 16 =>
+					RAControl <= "01001";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 17;
+				when 17 =>
+					RAControl <= "11110";
+					state <= 18;
+				when 18 =>
+					RAControl <= "01010";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 19;
+				when 19 =>
+					RAControl <= "11110";
+					state <= 20;
+				when 20 =>
+					RAControl <= "01011";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 21;
+				when 21 =>
+					RAControl <= "11110";
+					state <= 22;
+				when 22 =>
+					RAControl <= "01100";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 23;
+				when 23 =>
+					RAControl <= "11110";
+					state <= 24;
+				when 24 =>
+					RAControl <= "01101";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 25;
+				when 25 =>
+					RAControl <= "11110";
+					state <= 26;
+				when 26 =>
+					RAControl <= "01110";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 27;
+				when 27 =>
+					RAControl <= "11110";
+					state <= 28;
+				when 28 =>
+					RAControl <= "01111";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 29;
+				when 29 =>
+					RAControl <= "11110";
+					state <= 30;
+				when 30 =>
+					RAControl <= "10000";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 31;
+				when 31 =>
+					RAControl <= "11110";
+					state <= 32;
+				when 32 =>
+					RAControl <= "10001";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 33;
+				when 33 =>
+					RAControl <= "11110";
+					state <= 34;
+				when 34 =>
+					RAControl <= "10010";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 35;
+				when 35 =>
+					RAControl <= "11110";
+					state <= 36;
+				when 36 =>
+					RAControl <= "10011";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 37;
+				when 37 =>
+					RAControl <= "11110";
+					state <= 38;
+				when 38 =>
+					RAControl <= "10100";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 39;
+				when 39 =>
+					RAControl <= "11110";
+					state <= 40;
+				when 40 =>
+					RAControl <= "10101";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 41;
+				when 41 =>
+					RAControl <= "11110";
+					state <= 42;
+				when 42 =>
+					RAControl <= "10110";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 43;
+				when 43 =>
+					RAControl <= "11110";
+					state <= 44;
+				when 44 =>
+					RAControl <= "10111";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 45;
+				when 45 =>
+					RAControl <= "11110";
+					state <= 46;
+				when 46 =>
+					RAControl <= "11000";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 47;
+				when 47 =>
+					RAControl <= "11110";
+					state <= 48;
+				when 48 =>
+					RAControl <= "11001";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 49;
+				when others =>
+					RAControl <= "11110";
+					state <= 0;
+			end case;
+		end if;
+	end process;
+	FPGA_LED(15 downto 11) <= RegX(4 downto 0);
+	FPGA_LED(10 downto 6) <= RegY(4 downto 0);
+	FPGA_LED(5 downto 1) <= ALU(4 downto 0); 
+	FPGA_LED(0) <= T;
 end Behavioral;
 
