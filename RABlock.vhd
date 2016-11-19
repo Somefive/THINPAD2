@@ -182,15 +182,13 @@ begin
 					DestReg := '0'&ImmLong(7 downto 5);
 					ALUResult := Data;
 				when others =>
-					DestReg := "1111";
-					ALUResult := "0000000000000000";
 			end case;
 		end if;
 	end process;
 	
 	process(CLK)
 	begin
-		if(CLK'event and CLK='0')then
+		if(CLK'event and CLK='1' and RAControl="11110")then
 			case DestReg is
 				when "0000" =>
 					Reg0 <= ALUResult;
