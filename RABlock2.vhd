@@ -59,10 +59,9 @@ signal RegT : STD_LOGIC := '0';
 
 signal Rx: STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
 signal Ry: STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
-signal ShiftImmediate : STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
 
 shared variable ALUResult : std_logic_vector(15 downto 0):="0000000000000000";
-shared variable DestReg   : std_logic_vector(3 downto 0):="0000";
+shared variable DestReg   : std_logic_vector(3 downto 0):="1111";
 
 begin
 	with ImmLong(10 downto 8) select Rx <=
@@ -91,98 +90,100 @@ begin
 	begin
 		if(CLK'event and CLK='1')then
 			case RAControl is
-				when "00001" =>
+				when "00001" =>	--ADDIU
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-				when "00010" =>
+				when "00010" =>	--ADDIU3
 					DestReg := '0'&ImmLong(7 downto 5);
-					ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-				when "00011" =>
+					ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(3 downto 0)), 16));
+				when "00011" =>	--ADDSP
 					DestReg := "1001";--RegSP
 					ALUResult := RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-				when "00100" =>
+				when "00100" =>	--ADDSP3
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALUResult := RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-				when "00101" =>
+				when "00101" =>	--ADDU
 					DestReg := '0'&ImmLong(4 downto 2);
 					ALUResult := Rx + Ry;
-				when "00110" =>
+				when "00110" =>	--AND
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALUResult := Rx and Ry;
-				when "00111" =>
+				when "00111" =>	--CMP
 					DestReg := "1010";--RegT
 					if(Rx = Ry)then
 						ALUResult := "0000000000000000";
 					else
 						ALUResult := "0000000000000001";
 					end if;
-				when "01000" =>
+				when "01000" =>	--CMPI
 					DestReg := "1010";--RegT
 					if(Rx = std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16))) then
 						ALUResult := "0000000000000000";
 					else
 						ALUResult := "0000000000000001";
 					end if;
-				when "01001" =>
+				when "01001" =>	--JR
 					DestReg := "1011"; -- RegX
 					ALUResult := Rx;
-				when "01010" =>
+				when "01010" =>	--LI
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALUResult := "00000000"&ImmLong(7 downto 0);
-				when "01011" =>
+				when "01011" =>	--LW | SW
 					DestReg := "1100"; --ALU
 					ALUResult := Rx + std_logic_vector(resize(signed(ImmLong(4 downto 0)), 16));
-				when "01100" =>
+				when "01100" =>	--LW_SP | SW_SP
 					DestReg := "1100"; --ALU
 					ALUResult := RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
-				when "01101" =>
+				when "01101" =>	--MFIH
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALUResult := RegIH;
-				when "01110" =>
+				when "01110" =>	--MFPC
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALUResult := PC;
-				when "01111" =>
+				when "01111" =>	--MOVE												--??
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALUResult := Ry;
-				when "10000" =>
+				when "10000" =>	--MTIH
 					DestReg := "1101"; --RegIH
 					ALUResult := Rx;
-				when "10001" =>
+				when "10001" =>	--MTSP
 					DestReg := "1001"; --RegSP
 					ALUResult := Rx;
-				when "10010" =>
+				when "10010" =>	--NEG
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALUResult := "0000000000000000" - Ry;
-				when "10011" =>
+				when "10011" =>	--OR												--??
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALUResult := Rx or Ry;
-				when "10100" =>
+				when "10100" =>	--SLL												--??
 					DestReg := '0'&ImmLong(10 downto 8);
 					if(ImmLong(4 downto 2) = "000")then
-						ALUResult := to_stdlogicvector(to_bitvector(Rx) sll 8);
+						ALUResult := to_stdlogicvector(to_bitvector(Ry) sll 8);
 					else
-						ALUResult := to_stdlogicvector(to_bitvector(Rx) sll conv_integer(ImmLong(4 downto 2)));
+						ALUResult := to_stdlogicvector(to_bitvector(Ry) sll conv_integer(ImmLong(4 downto 2)));
 					end if;
-				when "10101" =>
+				when "10101" =>	--SLLV											--??
 					DestReg := '0'&ImmLong(7 downto 5);
 					ALUResult := to_stdlogicvector(to_bitvector(Ry) sll conv_integer(Rx));
-				when "10110" =>
+				when "10110" =>	--SRA
 					DestReg := '0'&ImmLong(10 downto 8);
 					if(ImmLong(4 downto 2) = "000")then
-						ALUResult := to_stdlogicvector(to_bitvector(Rx) sra 8);
+						ALUResult := to_stdlogicvector(to_bitvector(Ry) sra 8);
 					else
-						ALUResult := to_stdlogicvector(to_bitvector(Rx) sra conv_integer(ImmLong(4 downto 2)));
+						ALUResult := to_stdlogicvector(to_bitvector(Ry) sra conv_integer(ImmLong(4 downto 2)));
 					end if;
-				when "10111" =>
+				when "10111" =>	--SUBU
 					DestReg := '0'&ImmLong(4 downto 2);
 					ALUResult := Rx - Ry;
-				when "11000" =>
+				when "11000" =>	--MEMX
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALUResult := Data;
-				when "11001" =>
+				when "11001" =>	--MEMY
 					DestReg := '0'&ImmLong(7 downto 5);
 					ALUResult := Data;
 				when others =>
+					DestReg := "1111";
+					ALUResult := "0000000000000000";
 			end case;
 		end if;
 	end process;
@@ -212,7 +213,7 @@ begin
 				when "1010" =>
 					RegT <= ALUResult(0);
 				when "1011" =>
-					RegX <= ALUResult;
+					--RegX <= ALUResult;
 				when "1100" =>
 					ALU <= ALUResult;
 				when "1101" =>
