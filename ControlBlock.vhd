@@ -49,67 +49,68 @@ begin
 	begin
 		if(Finish'event and Finish='1') then--??
 			Runable <= '0';
-			RamControl <= "001";
+			--RamControl <= "001";
 		end if;
 	end process;
 
 	process(CLK,Finish)
 	begin
-		if(Runable = '1') then
-			Period <= 4;
-		elsif(Instruction(15 downto 11) = "10011" or Instruction(15 downto 11) = "10010") then
-			if(Period = 1) then
-				Period <= 2;
-			elsif(Period = 2) then
-				Period <= 3;
-			elsif(Period = 3) then
+		if(CLK'event and CLK = '1') then
+			if(Runable = '1') then
 				Period <= 4;
-			elsif(Period = 4) then
-				if(Finish'event and Finish='1') then--??
-					Period <= 5;
-				end if;
-			elsif(Period = 5) then
-				Period <= 6;
-			elsif(Period = 6) then
-				Period <= 1;
-			else
-			end if;
-		elsif(Instruction(15 downto 11) = "11011" or Instruction(15 downto 11) = "11010") then
-			if(Period = 1) then
-				Period <= 2;
-			elsif(Period = 2) then
-				Period <= 3;
-			elsif(Period = 3) then
-				Period <= 4;
-			elsif(Period = 4) then
-				if(Finish'event and Finish='1') then--??
-					Period <= 5;
-				end if;
-			elsif(Period = 5) then
-				Period <= 1;
-			else
-			end if;
-		elsif(Instruction(15 downto 11) = "00000" and Instruction(7 downto 5) = "010") then
-			if(Period = 1) then
-				Period <= 2;
-			elsif(Period = 2) then
-				Period <= 3;
-			elsif(Period = 3) then
-				Period <= 4;
-			elsif(Period = 4) then
-				Period <= 1;
-			else
-			end if;
-		else
-			if(Period = 1) then
+			elsif(Instruction(15 downto 11) = "10011" or Instruction(15 downto 11) = "10010") then
+				if(Period = 1) then
 					Period <= 2;
 				elsif(Period = 2) then
 					Period <= 3;
 				elsif(Period = 3) then
+					Period <= 4;
+				elsif(Period = 4) then
+					if(Finish='1') then--??
+						Period <= 5;
+					end if;
+				elsif(Period = 5) then
+					Period <= 6;
+				elsif(Period = 6) then
 					Period <= 1;
+				else
 				end if;
+			elsif(Instruction(15 downto 11) = "11011" or Instruction(15 downto 11) = "11010") then
+				if(Period = 1) then
+					Period <= 2;
+				elsif(Period = 2) then
+					Period <= 3;
+				elsif(Period = 3) then
+					Period <= 4;
+				elsif(Period = 4) then
+					if(Finish='1') then--??
+						Period <= 5;
+					end if;
+				elsif(Period = 5) then
+					Period <= 1;
+				else
+				end if;
+			elsif(Instruction(15 downto 11) = "00000" and Instruction(7 downto 5) = "010") then
+				if(Period = 1) then
+					Period <= 2;
+				elsif(Period = 2) then
+					Period <= 3;
+				elsif(Period = 3) then
+					Period <= 4;
+				elsif(Period = 4) then
+					Period <= 1;
+				else
+				end if;
+			else
+				if(Period = 1) then
+						Period <= 2;
+					elsif(Period = 2) then
+						Period <= 3;
+					elsif(Period = 3) then
+						Period <= 1;
+					end if;
+			end if;
 		end if;
-	
 		
 	end process;
 	
@@ -340,7 +341,9 @@ begin
 	
 	process(Period)
 	begin
-		if(Period = 1) then
+		if(Runable = '1') then
+			RamControl <= "001";
+		elsif(Period = 1) then
 			RamControl <= "011";
 		elsif(Period = 2) then
 		

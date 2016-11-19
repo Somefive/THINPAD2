@@ -100,14 +100,6 @@ component PCBlock is
 			  CLK : in STD_LOGIC);
 end component;
 
-component ControlBlock is
-    Port ( Instruction : in  STD_LOGIC_VECTOR(15 downto 0);
-           Finish : in  STD_LOGIC;
-           CLK : in  STD_LOGIC;
-           PCControl : out  STD_LOGIC_VECTOR(2 downto 0);
-           RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
-           RamControl : out  STD_LOGIC_VECTOR(2 downto 0));
-end component;
 
 component RABlock is
     Port ( ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
@@ -119,6 +111,15 @@ component RABlock is
            T : out  STD_LOGIC;
            ALU : out  STD_LOGIC_VECTOR (15 downto 0);
 			  CLK : in STD_LOGIC);
+end component;
+
+component ControlBlock is
+	Port ( Instruction : in  STD_LOGIC_VECTOR(15 downto 0);
+           Finish : in  STD_LOGIC;
+           CLK : in  STD_LOGIC;
+           PCControl : out  STD_LOGIC_VECTOR(2 downto 0);
+           RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
+           RamControl : out  STD_LOGIC_VECTOR(2 downto 0));
 end component;
 
 signal RamControl: STD_LOGIC_VECTOR(2 downto 0):="000";
@@ -204,6 +205,8 @@ begin
 		CLK_KEY
 	);
 	
+	
+	
 --	process(start,finish)
 --	begin
 --		if(finish'event and finish='1')then
@@ -233,6 +236,22 @@ begin
 --			end case;
 --		end if;
 --	end process;
+
+	process(CLK_KEY)
+	begin
+		if(CLK_KEY'event and CLK_KEY='1')then
+		case state is
+				when 0 =>
+					
+				when 1 =>
+					
+				when 2 =>
+					
+				when others =>
+			end case;
+		end if;
+	end process;
+		
 	
 	
 end Behavioral;
