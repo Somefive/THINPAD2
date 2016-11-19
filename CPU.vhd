@@ -142,67 +142,70 @@ signal fake_ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal start: STD_LOGIC:='0';
 shared variable count: integer range 0 to 63:=0;
 
+--PCTest
+signal ImmLong : std_logic_vector(10 downto 0):="00000000000";
+
 begin
 
 	DL: DigitLights port map (DYP1, state);
 
-	RamBlock_Entity: RamBlock port map (
-		RegX,
-		RegY,
-		ALU,
-		PC,
-		RamControl,
-		Finish,
-		Output,
-		fake_ins,
-		RAM1ADDR,
-		RAM1DATA,
-		RAM1_EN,
-		RAM1_OE,
-		RAM1_RW,
-		RAM2ADDR,
-		RAM2DATA,
-		RAM2_EN,
-		RAM2_OE,
-		RAM2_RW,
-		DATA_READY,
-		RDN,
-		TBRE,
-		TSRE,
-		WRN,
-		DYP0,
-		CLK_KEY
-	);
+--	RamBlock_Entity: RamBlock port map (
+--		RegX,
+--		RegY,
+--		ALU,
+--		PC,
+--		RamControl,
+--		Finish,
+--		Output,
+--		fake_ins,
+--		RAM1ADDR,
+--		RAM1DATA,
+--		RAM1_EN,
+--		RAM1_OE,
+--		RAM1_RW,
+--		RAM2ADDR,
+--		RAM2DATA,
+--		RAM2_EN,
+--		RAM2_OE,
+--		RAM2_RW,
+--		DATA_READY,
+--		RDN,
+--		TBRE,
+--		TSRE,
+--		WRN,
+--		DYP0,
+--		CLK_KEY
+--	);
 	
 	PCBlock_Entity: PCBlock port map (
 		RegX,
 		T,
-		fake_ins(10 downto 0),
+		ImmLong,
 		PCControl,
 		PC,
 		CLK_KEY
 	);
 	
-	ControlBlock_Entity: ControlBlock port map( 
-		Ins,
-		Finish,
-		CLK_KEY,
-		PCControl,
-		RAControl,
-		RamControl
-	);
+--	ControlBlock_Entity: ControlBlock port map( 
+--		Ins,
+--		Finish,
+--		CLK_KEY,
+--		PCControl,
+--		RAControl,
+--		RamControl
+--	);
 	
-	RABlock_Entity : RABlock port map(
-		fake_ins(10 downto 0),
-		PC,
-		Output,
-		RAControl,
-		RegX,
-		RegY,
-		T,
-		ALU,
-		CLK_KEY
-	);
+--	RABlock_Entity : RABlock port map(
+--		fake_ins(10 downto 0),
+--		PC,
+--		Output,
+--		RAControl,
+--		RegX,
+--		RegY,
+--		T,
+--		ALU,
+--		CLK_KEY
+--	);
 	
 --	process(start,finish)
 --	begin
@@ -234,6 +237,55 @@ begin
 --		end if;
 --	end process;
 	
-	
+	process(CLK_KEY)
+	begin
+		if(CLK_KEY'event and CLK_KEY='0')then
+			case state is
+				when 0 =>
+					T <= SW_DIP(15);
+					RegX <= "000000000000"&SW_DIP(14 downto 11);
+					ImmLong <= SW_DIP(10 downto 0);
+					PCControl <= "001";
+					state <= 1;
+				when 1 =>
+					PCControl <= "111";
+					state <= 2;
+				when 2 =>
+					PCControl <= "010";
+					state <= 3;
+				when 3 =>
+					PCControl <= "111";
+					state <= 4;
+				when 4 =>
+					PCControl <= "011";
+					state <= 5;
+				when 5 =>
+					PCControl <= "111";
+					state <= 6;
+				when 6 =>
+					PCControl <= "100";
+					state <= 7;
+				when 7 =>
+					PCControl <= "111";
+					state <= 8;
+				when 8 =>
+					PCControl <= "101";
+					state <= 9;
+				when 9 =>
+					PCControl <= "111";
+					state <= 10;
+				when 10 =>
+					PCControl <= "110";
+					state <= 11;
+				when 11 =>
+					PCControl <= "111";
+					state <= 12;
+				when others =>
+					PCControl <= "111";
+					state <= 0;
+			end case;
+		end if;
+	end process;
+	FPGA_LED <= PC;
 end Behavioral;
 
