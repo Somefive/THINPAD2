@@ -152,42 +152,42 @@ begin
 
 	DL: DigitLights port map (DYP1, state);
 
-	RamBlock_Entity: RamBlock port map (
-		RegX,
-		RegY,
-		ALU,
-		PC,
-		RamControl,
-		Finish,
-		Output,
-		fake_ins,
-		RAM1ADDR,
-		RAM1DATA,
-		RAM1_EN,
-		RAM1_OE,
-		RAM1_RW,
-		RAM2ADDR,
-		RAM2DATA,
-		RAM2_EN,
-		RAM2_OE,
-		RAM2_RW,
-		DATA_READY,
-		RDN,
-		TBRE,
-		TSRE,
-		WRN,
-		DYP0,
-		CLK_KEY
-	);
+--	RamBlock_Entity: RamBlock port map (
+--		RegX,
+--		RegY,
+--		ALU,
+--		PC,
+--		RamControl,
+--		Finish,
+--		Output,
+--		fake_ins,
+--		RAM1ADDR,
+--		RAM1DATA,
+--		RAM1_EN,
+--		RAM1_OE,
+--		RAM1_RW,
+--		RAM2ADDR,
+--		RAM2DATA,
+--		RAM2_EN,
+--		RAM2_OE,
+--		RAM2_RW,
+--		DATA_READY,
+--		RDN,
+--		TBRE,
+--		TSRE,
+--		WRN,
+--		DYP0,
+--		CLK_KEY
+--	);
 	
-	PCBlock_Entity: PCBlock port map (
-		RegX,
-		T,
-		fake_ins(10 downto 0),
-		PCControl,
-		PC,
-		CLK_KEY
-	);
+--	PCBlock_Entity: PCBlock port map (
+--		RegX,
+--		T,
+--		fake_ins(10 downto 0),
+--		PCControl,
+--		PC,
+--		CLK_KEY
+--	);
 	
 --	ControlBlock_Entity: ControlBlock port map( 
 --		Ins,
@@ -251,102 +251,175 @@ begin
 					Data         <= "0000000000000110";
 					state <= 1;
 				when 1 =>
-					RAControl <= "00010";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 2;
 				when 2 =>
-					RAControl <= "00011";
+					RAControl <= "00010";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 3;
 				when 3 =>
-					RAControl <= "00100";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 4;
 				when 4 =>
-					RAControl <= "00101";
+					RAControl <= "00011";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 5;
 				when 5 =>
-					RAControl <= "00110";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 6;
 				when 6 =>
-					RAControl <= "00111";
+					RAControl <= "00100";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 7;
 				when 7 =>
-					RAControl <= "01000";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 8;
 				when 8 =>
-					RAControl <= "01001";
+					RAControl <= "00101";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 9;
 				when 9 =>
-					RAControl <= "01010";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 10;
 				when 10 =>
-					RAControl <= "01011";
+					RAControl <= "00110";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 11;
 				when 11 =>
-					RAControl <= "01100";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 12;
-				when 12 =>
-					RAControl <= "01101";
+				when 12 =>												
+					RAControl <= "00111";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 13;
 				when 13 =>
-					RAControl <= "01110";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 14;
 				when 14 =>
-					RAControl <= "01111";
+					RAControl <= "01000";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 15;
 				when 15 =>
-					RAControl <= "10000";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 16;
 				when 16 =>
-					RAControl <= "10001";
+					RAControl <= "01001";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 17;
 				when 17 =>
-					RAControl <= "10010";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 18;
 				when 18 =>
-					RAControl <= "10011";
+					RAControl <= "01010";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 19;
 				when 19 =>
-					RAControl <= "10100";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 20;
 				when 20 =>
-					RAControl <= "10101";
+					RAControl <= "01011";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 21;
 				when 21 =>
-					RAControl <= "10110";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 22;
 				when 22 =>
-					RAControl <= "10111";
+					RAControl <= "01100";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 23;
 				when 23 =>
-					RAControl <= "11000";
-					RABlock_Ins <= SW_DIP(10 downto 0);
+					RAControl <= "00000";
 					state <= 24;
 				when 24 =>
-					RAControl <= "11001";
+					RAControl <= "01101";
 					RABlock_Ins <= SW_DIP(10 downto 0);
 					state <= 25;
+				when 25 =>
+					RAControl <= "00000";
+					state <= 26;
+				when 26 =>
+					RAControl <= "01110";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 27;
+				when 27 =>
+					RAControl <= "00000";
+					state <= 28;
+				when 28 =>
+					RAControl <= "01111";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 29;
+				when 29 =>
+					RAControl <= "00000";
+					state <= 30;
+				when 30 =>
+					RAControl <= "10000";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 31;
+				when 31 =>
+					RAControl <= "00000";
+					state <= 32;
+				when 32 =>
+					RAControl <= "10001";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 33;
+				when 33 =>
+					RAControl <= "00000";
+					state <= 34;
+				when 34 =>
+					RAControl <= "10010";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 35;
+				when 35 =>
+					RAControl <= "00000";
+					state <= 36;
+				when 36 =>
+					RAControl <= "10011";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 37;
+				when 37 =>
+					RAControl <= "00000";
+					state <= 38;
+				when 38 =>
+					RAControl <= "10100";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 39;
+				when 39 =>
+					RAControl <= "00000";
+					state <= 40;
+				when 40 =>
+					RAControl <= "10101";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 41;
+				when 41 =>
+					RAControl <= "00000";
+					state <= 42;
+				when 42 =>
+					RAControl <= "10110";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 43;
+				when 43 =>
+					RAControl <= "00000";
+					state <= 44;
+				when 44 =>
+					RAControl <= "10111";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 45;
+				when 45 =>
+					RAControl <= "00000";
+					state <= 46;
+				when 46 =>
+					RAControl <= "11000";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 47;
+				when 47 =>
+					RAControl <= "00000";
+					state <= 48;
+				when 48 =>
+					RAControl <= "11001";
+					RABlock_Ins <= SW_DIP(10 downto 0);
+					state <= 49;
 				when others =>
+					RAControl <= "00000";
 					state <= 0;
 			end case;
 		end if;
