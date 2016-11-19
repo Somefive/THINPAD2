@@ -218,10 +218,10 @@ begin
 					RegIH <= ALUResult;
 				when others =>
 			end case;
-			T <= RegT;
-			RegY <= Ry;
-			RegX <= Rx;
 		end if;
+		T <= RegT;
+		RegY <= Ry;
+		RegX <= Rx;
 	end process;
 end Behavioral;
 
