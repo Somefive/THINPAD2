@@ -109,7 +109,7 @@ component ControlBlock is
            RamControl : out  STD_LOGIC_VECTOR(2 downto 0));
 end component;
 
-component RABlock2 is
+component RABlock is
     Port ( ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
            PC : in  STD_LOGIC_VECTOR (15 downto 0);
            Data : in  STD_LOGIC_VECTOR (15 downto 0);
@@ -192,6 +192,18 @@ begin
 		RamControl
 	);
 	
+	RABlock_Entity : RABlock port map(
+		fake_ins(10 downto 0),
+		PC,
+		Output,
+		RAControl,
+		RegX,
+		RegY,
+		T,
+		ALU,
+		CLK_KEY
+	);
+	
 --	process(start,finish)
 --	begin
 --		if(finish'event and finish='1')then
@@ -222,17 +234,6 @@ begin
 --		end if;
 --	end process;
 	
-	process(CLK_KEY)
-	begin
-		if(CLK_KEY'event and CLK_KEY='1')then
-			case state is
-				when 0 =>
-					state <= 1;
-				when others =>
-					state <= 0;
-			end case;
-		end if;
-	end process;
 	
 end Behavioral;
 
