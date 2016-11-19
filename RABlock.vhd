@@ -124,7 +124,7 @@ begin
 					end if;
 				when "01001" =>	--JR
 					DestReg := "1011"; -- RegX
-					ALU <= Rx;
+					RegX <= Rx;
 				when "01010" =>	--LI
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALU <= "00000000"&ImmLong(7 downto 0);
