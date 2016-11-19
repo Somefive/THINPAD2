@@ -42,7 +42,7 @@ end PCBlock;
 
 
 architecture Behavioral of PCBlock is
---signal RegPC : std_logic_vector(15 downto 0):="0000000000000111";
+signal BufPC : std_logic_vector(15 downto 0):="0000000000000000";
 begin
 
 	process(CLK, PCControl)
@@ -50,34 +50,34 @@ begin
 		if(CLK'event and CLK='1')then
 			case PCControl is
 				when "001" =>
-					PC <= PC + '1';
+					BufPC <= PC+ '1';
 				when "010" =>
-					PC <= PC + std_logic_vector(resize(signed(ImmLong(10 downto 0)), 16));
+					BufPC<= PC + std_logic_vector(resize(signed(ImmLong(10 downto 0)), 16));
 				when "011" =>
 					if(RegX = "0000000000000000") then
-						PC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+						BufPC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
 					end if;
 				when "100" =>
 					if(RegX /= "0000000000000000") then
-						PC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+						BufPC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
 					end if;
 				when "101" =>
 					if(T = '0') then
-						PC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+						BufPC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
 					end if;
 				when "110" =>
-					PC <= RegX;
+					BufPC <= RegX;
 				when others =>
 			end case;
 		end if;
 	end process;
 	
---	process(CLK)
---	begin
---		if(CLK'event and CLK='0')then
---			RegPC <= PC;
---		end if;
---	end process;
+	process(CLK)
+	begin
+		if(CLK'event and CLK='1' and PCControl="111")then
+			PC <= BufPC;
+		end if;
+	end process;
 	
 end Behavioral;
 
