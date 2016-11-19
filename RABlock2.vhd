@@ -62,7 +62,7 @@ signal Ry: STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
 signal ShiftImmediate : STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
 
 shared variable ALUResult : std_logic_vector(15 downto 0):="0000000000000000";
-shared variable DestReg   : std_logic_vector(3 downto 0):="0000";
+shared variable DestReg   : std_logic_vector(3 downto 0):="1111";
 
 begin
 	with ImmLong(10 downto 8) select Rx <=
