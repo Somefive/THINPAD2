@@ -177,14 +177,14 @@ begin
 --		CLK_KEY
 --	);
 	
-	PCBlock_Entity: PCBlock port map (
-		RegX,
-		T,
-		fake_ins(10 downto 0),
-		PCControl,
-		PC,
-		CLK_KEY
-	);
+--	PCBlock_Entity: PCBlock port map (
+--		RegX,
+--		T,
+--		fake_ins(10 downto 0),
+--		PCControl,
+--		PC,
+--		CLK_KEY
+--	);
 	
 	ControlBlock_Entity: ControlBlock port map( 
 		Ins,
@@ -196,17 +196,17 @@ begin
 		DYP0
 	);
 	
-	RABlock_Entity : RABlock port map(
-		fake_ins(10 downto 0),
-		PC,
-		Output,
-		RAControl,
-		RegX,
-		RegY,
-		T,
-		ALU,
-		CLK_KEY
-	);
+--	RABlock_Entity : RABlock port map(
+--		fake_ins(10 downto 0),
+--		PC,
+--		Output,
+--		RAControl,
+--		RegX,
+--		RegY,
+--		T,
+--		ALU,
+--		CLK_KEY
+--	);
 	
 	
 	
@@ -242,7 +242,7 @@ begin
 
 	process(CLK_KEY)
 	begin
-		if(CLK_KEY'event and CLK_KEY='1')then
+		if(CLK_KEY'event and CLK_KEY='0')then
 		case state is
 				when 1 =>
 					
