@@ -119,7 +119,9 @@ component ControlBlock is
            CLK : in  STD_LOGIC;
            PCControl : out  STD_LOGIC_VECTOR(2 downto 0);
            RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
-           RamControl : out  STD_LOGIC_VECTOR(2 downto 0));
+           RamControl : out  STD_LOGIC_VECTOR(2 downto 0);
+			  DYP : out STD_LOGIC_VECTOR(6 downto 0)
+			  );
 end component;
 
 signal RamControl: STD_LOGIC_VECTOR(2 downto 0):="000";
@@ -131,13 +133,13 @@ signal RegY: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal ALU: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal PC: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 
-signal Finish: STD_LOGIC;
+signal Finish: STD_LOGIC := '1';
 signal Ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal Output: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal T: STD_LOGIC:='0';
 
 
-signal state: integer range 0 to 15:=0;
+signal state: integer range 0 to 15:=1;
 signal fake_ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 
 signal start: STD_LOGIC:='0';
@@ -147,33 +149,33 @@ begin
 
 	DL: DigitLights port map (DYP1, state);
 
-	RamBlock_Entity: RamBlock port map (
-		RegX,
-		RegY,
-		ALU,
-		PC,
-		RamControl,
-		Finish,
-		Output,
-		fake_ins,
-		RAM1ADDR,
-		RAM1DATA,
-		RAM1_EN,
-		RAM1_OE,
-		RAM1_RW,
-		RAM2ADDR,
-		RAM2DATA,
-		RAM2_EN,
-		RAM2_OE,
-		RAM2_RW,
-		DATA_READY,
-		RDN,
-		TBRE,
-		TSRE,
-		WRN,
-		DYP0,
-		CLK_KEY
-	);
+--	RamBlock_Entity: RamBlock port map (
+--		RegX,
+--		RegY,
+--		ALU,
+--		PC,
+--		RamControl,
+--		Finish,
+--		Output,
+--		fake_ins,
+--		RAM1ADDR,
+--		RAM1DATA,
+--		RAM1_EN,
+--		RAM1_OE,
+--		RAM1_RW,
+--		RAM2ADDR,
+--		RAM2DATA,
+--		RAM2_EN,
+--		RAM2_OE,
+--		RAM2_RW,
+--		DATA_READY,
+--		RDN,
+--		TBRE,
+--		TSRE,
+--		WRN,
+--		DYP0,
+--		CLK_KEY
+--	);
 	
 	PCBlock_Entity: PCBlock port map (
 		RegX,
@@ -190,7 +192,8 @@ begin
 		CLK_KEY,
 		PCControl,
 		RAControl,
-		RamControl
+		RamControl,
+		DYP0
 	);
 	
 	RABlock_Entity : RABlock port map(
@@ -241,18 +244,58 @@ begin
 	begin
 		if(CLK_KEY'event and CLK_KEY='1')then
 		case state is
-				when 0 =>
-					
 				when 1 =>
 					
+					FPGA_LED(15 downto 13) <= PCControl;
+					FPGA_LED(9 downto 5) <= RAControl;
+					FPGA_LED(3 downto 1) <= RamControl;
+					FPGA_LED(0) <= Finish;
+					state <= 2;
 				when 2 =>
-					
+					Ins <= SW_DIP;
+					FPGA_LED(15 downto 13) <= PCControl;
+					FPGA_LED(9 downto 5) <= RAControl;
+					FPGA_LED(3 downto 1) <= RamControl;
+					FPGA_LED(0) <= Finish;
+					state <= 3;
+				when 3 =>
+					FPGA_LED(15 downto 13) <= PCControl;
+					FPGA_LED(9 downto 5) <= RAControl;
+					FPGA_LED(3 downto 1) <= RamControl;
+					FPGA_LED(0) <= Finish;
+					state <= 4;
+				when 4=>
+					FPGA_LED(15 downto 13) <= PCControl;
+					FPGA_LED(9 downto 5) <= RAControl;
+					FPGA_LED(3 downto 1) <= RamControl;
+					FPGA_LED(0) <= Finish;
+					state <= 5;
+				when 5=>
+					FPGA_LED(15 downto 13) <= PCControl;
+					FPGA_LED(9 downto 5) <= RAControl;
+					FPGA_LED(3 downto 1) <= RamControl;
+					FPGA_LED(0) <= Finish;
+					state <= 6;
+				when 6=>
+					FPGA_LED(15 downto 13) <= PCControl;
+					FPGA_LED(9 downto 5) <= RAControl;
+					FPGA_LED(3 downto 1) <= RamControl;
+					FPGA_LED(0) <= Finish;
+					state <= 1;
 				when others =>
 			end case;
 		end if;
 	end process;
 		
-	
+	process(RESET)
+	begin
+		if(state = 1) then
+			Finish <= '1';
+		
+		elsif(RESET'event and RESET='1')then
+			Finish <= '0';
+		end if;
+	end process;
 	
 end Behavioral;
 
