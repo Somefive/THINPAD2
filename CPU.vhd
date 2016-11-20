@@ -248,7 +248,7 @@ begin
 					RABlock_Ins  <= SW_DIP(10 downto 0);
 					RABlock_PC   <= "0000000000001001";
 					Data         <= "0000000000000110";
-					state <= 1;
+					state <= 2;
 				when 1 =>
 					RAControl <= "11110";
 					state <= 2;
@@ -258,7 +258,7 @@ begin
 					state <= 3;
 				when 3 =>
 					RAControl <= "11110";
-					state <= 4;
+					state <= 3;
 				when 4 =>
 					RAControl <= "00011";
 					RABlock_Ins <= SW_DIP(10 downto 0);
@@ -423,9 +423,9 @@ begin
 			end case;
 		end if;
 	end process;
-	--FPGA_LED(15 downto 11) <= RegX(4 downto 0);
-	--FPGA_LED(10 downto 6) <= RegY(4 downto 0);
-	FPGA_LED <= ALU; 
-	--FPGA_LED(0) <= T;
+	FPGA_LED(15 downto 11) <= RegX(4 downto 0);
+	FPGA_LED(10 downto 6) <= RegY(4 downto 0);
+	FPGA_LED(5 downto 1) <= ALU(4 downto 0); 
+	FPGA_LED(0) <= T;
 end Behavioral;
 
