@@ -322,7 +322,7 @@ begin
 						next_state <= 1;
 					end if;
 			end if;
-		
+
 	end process;
 	
 end Behavioral;
