@@ -19,6 +19,9 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use ieee.numeric_std.all;
+use IEEE.std_logic_unsigned.all;
+use IEEE.std_logic_arith.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -36,7 +39,8 @@ entity ControlBlock is
            PCControl : out  STD_LOGIC_VECTOR(2 downto 0);
            RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
            RamControl : out  STD_LOGIC_VECTOR(2 downto 0);
-			  DYP : out STD_LOGIC_VECTOR(6 downto 0));
+			  DYP : out STD_LOGIC_VECTOR(6 downto 0);
+			  OutPeriod: out STD_LOGIC_VECTOR(3 downto 0));
 end ControlBlock;
 
 architecture Behavioral of ControlBlock is
@@ -50,8 +54,8 @@ signal Period : INTEGER RANGE 0 TO 15 := 1;--??
 signal Runable : STD_LOGIC := '1';
 
 begin
-
 	DL: DigitLights port map (DYP, Period);
+	OutPeriod <= CONV_STD_LOGIC_VECTOR(Period,4);
 
 	process(Finish)
 	begin
@@ -64,9 +68,9 @@ begin
 	process(CLK,Finish)
 	begin
 		if(CLK'event and CLK = '0') then
---			if(Runable = '1') then
---				Period <= 4;
-			if(Instruction(15 downto 11) = "10011" or Instruction(15 downto 11) = "10010") then
+			if(Runable = '1') then
+				Period <= 4;
+			elsif(Instruction(15 downto 11) = "10011" or Instruction(15 downto 11) = "10010") then
 				if(Period = 1) then
 					Period <= 2;
 				elsif(Period = 2) then
@@ -113,14 +117,14 @@ begin
 				end if;
 			else
 				if(Period = 1) then
-						Period <= 2;
-					elsif(Period = 2) then
-						Period <= 3;
-					elsif(Period = 3) then
-						Period <= 4;
-					elsif(Period = 4) then
-						Period <= 1;
-					end if;
+					Period <= 2;
+				elsif(Period = 2) then
+					Period <= 3;
+				elsif(Period = 3) then
+					Period <= 4;
+				elsif(Period = 4) then
+					Period <= 1;
+				end if;
 			end if;
 		end if;
 		

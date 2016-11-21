@@ -96,9 +96,9 @@ begin
 					when 1 =>
 						RAM1ADDR <= "0000000000000000"+count;
 						case count is
-							when 0 => RAM1DATA <= "00010"&"00000000001"; --B 0x01
-							when 1 => RAM1DATA <= "00010"&"00000000001"; --B 0x01
-							when 2 => RAM1DATA <= "00010"&"00000000001"; --B 0x01
+							when 0 => RAM1DATA <= "01001"&"000"&"00000001"; --ADDIU R0 0x01
+							when 1 => RAM1DATA <= "01000"&"000"&"001"&"0"&"0011"; --ADDIU3 R0 R1 0x01
+							when 2 => RAM1DATA <= "01100011"&"00010001"; --ADDSP 0x11
 							--when 3 => RAM1DATA <= "00010"&"00000000001"; --B 0x01
 							--when 4 => RAM1DATA <= "00010"&"00000000001"; --B 0x01
 							when others => RAM1DATA <= (others => '1');

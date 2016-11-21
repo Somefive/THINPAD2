@@ -19,8 +19,9 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.std_logic_unsigned.all;
 use ieee.numeric_std.all;
+use IEEE.std_logic_unsigned.all;
+use IEEE.std_logic_arith.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -107,7 +108,8 @@ component ControlBlock is
            PCControl : out  STD_LOGIC_VECTOR(2 downto 0);
            RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
            RamControl : out  STD_LOGIC_VECTOR(2 downto 0);
-			  DYP : out STD_LOGIC_VECTOR(6 downto 0));
+			  DYP : out STD_LOGIC_VECTOR(6 downto 0);
+			  OutPeriod: out STD_LOGIC_VECTOR(3 downto 0));
 end component;
 
 component RABlock is
@@ -136,46 +138,10 @@ signal Ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal Output: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal T: STD_LOGIC:='0';
 
-
-signal state: integer range 0 to 15:=1;
-signal next_state:integer range 0 to 15 := 2;
-signal fake_ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
-
-signal start: STD_LOGIC:='0';
-shared variable count: integer range 0 to 63:=0;
+signal OutPeriod: STD_LOGIC_VECTOR(3 downto 0);
 
 begin
 
-	DL: DigitLights port map (DYP1, state);
-
---	RamBlock_Entity: RamBlock port map (
---		RegX,
---		RegY,
---		ALU,
---		PC,
---		RamControl,
---		Finish,
---		Output,
---		fake_ins,
---		RAM1ADDR,
---		RAM1DATA,
---		RAM1_EN,
---		RAM1_OE,
---		RAM1_RW,
---		RAM2ADDR,
---		RAM2DATA,
---		RAM2_EN,
---		RAM2_OE,
---		RAM2_RW,
---		DATA_READY,
---		RDN,
---		TBRE,
---		TSRE,
---		WRN,
---		DYP0,
---		CLK_KEY
---	);
-	
 	PCBlock_Entity: PCBlock port map (
 		RegX,
 		T,
@@ -192,7 +158,36 @@ begin
 		PCControl,
 		RAControl,
 		RamControl,
-		DYP0
+		DYP0,
+		OutPeriod
+	);
+	
+	RamBlock_Entity: RamBlock port map(
+		RegX,
+		RegY,
+		ALU,
+		PC,
+		RamControl,
+		Finish,
+		Output,
+		Ins,
+		RAM1ADDR,
+		RAM1DATA,
+		RAM1_EN,
+		RAM1_OE,
+		RAM1_RW,
+		RAM2ADDR,
+		RAM2DATA,
+		RAM2_EN,
+		RAM2_OE,
+		RAM2_RW,
+		DATA_READY,
+		RDN,
+		TBRE,
+		TSRE,
+		WRN,
+		DYP1,
+		CLK_KEY
 	);
 	
 	RABlock_Entity : RABlock port map(
@@ -206,124 +201,12 @@ begin
 		ALU,
 		CLK_KEY
 	);
-	
---	process(start,finish)
---	begin
---		if(finish'event and finish='1')then
---			start<='1';
---		end if;
---	end process;
-	
---	process(CLK_KEY)
---	begin
---		if(start='0')then
-			
---		elsif(CLK_KEY'event and CLK_KEY='1')then
---			case state is
---				when 0 =>
---					RamControl <= "000";
---					state <= 1;
---				when 1 =>
---					FPGA_LED <= fake_ins;
---					RamControl <= "001";
---					PC <= "0000000000000000"+count;
---					state <= 2;
---				when 2 =>
---					RamControl <= "011";
---					count := count+1;
---					state <= 0;
---				when others =>
---			end case;
---		end if;
---	end process;
-
-	FPGA_LED(15 downto 13) <= PCControl;
-	FPGA_LED(12 downto 8) <= RAControl;
-	FPGA_LED(7 downto 5) <= RamControl;
-	FPGA_LED(4) <= Finish;
-	FPGA_LED(3 downto 0) <= PC(3 downto 0);
-
-	process(CLK_KEY)
-	begin
-		if(CLK_KEY'event and CLK_KEY='0')then
-			case state is
-				when 1 =>
-					Ins <= SW_DIP;
-				when 2 =>
-					
-				when 3 =>
-				when 4 =>
-				when 5 =>
-				when 6 =>
-				when others=>
-			end case;
-			state <= next_state;
-		end if;
-	end process;
-	
-	process(state)
-	begin
 		
---			if(Runable = '1') then
---				state <= 4;
-			if(Ins(15 downto 11) = "10011" or Ins(15 downto 11) = "10010") then
-				if(state = 1) then
-					next_state <= 2;
-				elsif(state = 2) then
-					next_state <= 3;
-				elsif(state = 3) then
-					next_state <= 4;
-				elsif(state = 4) then
-					if(Finish='0') then--??
-						next_state <= 5;
-					end if;
-				elsif(state = 5) then
-					next_state <= 6;
-				elsif(state = 6) then
-					next_state <= 1;
-				else
-				end if;
-			elsif(Ins(15 downto 11) = "11011" or Ins(15 downto 11) = "11010") then
-				if(state = 1) then
-					next_state <= 2;
-				elsif(state = 2) then
-					next_state <= 3;
-				elsif(state = 3) then
-					next_state <= 4;
-				elsif(state = 4) then
-					if(Finish='0') then--??
-						next_state <= 5;
-					end if;
-				elsif(state = 5) then
-					next_state <= 1;
-				else
-				end if;
-			elsif(Ins(15 downto 11) = "11101" and Ins(7 downto 0) = "01000000") then
-				if(state = 1) then
-					next_state <= 2;
-				elsif(state = 2) then
-					next_state <= 3;
-				elsif(state = 3) then
-					next_state <= 4;
-				elsif(state = 4) then
-					next_state <= 5;
-				elsif(state = 5) then
-					next_state <= 1;
-				else
-				end if;
-			else
-				if(state = 1) then
-						next_state <= 2;
-					elsif(state = 2) then
-						next_state <= 3;
-					elsif(state = 3) then
-						next_state <= 4;
-					elsif(state = 4) then
-						next_state <= 1;
-					end if;
-			end if;
-
-	end process;
+	with OutPeriod select FPGA_LED <=
+		PC when "0001",
+		Ins when "0010",
+		ALU when "0011",
+		Output when others;
 	
 end Behavioral;
 

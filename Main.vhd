@@ -83,6 +83,34 @@ component CPU is
            RESET : in  STD_LOGIC);
 end component;
 
+component RamBlock is
+    Port ( RegX : in STD_LOGIC_VECTOR (15 downto 0);
+			  RegY : in STD_LOGIC_VECTOR (15 downto 0);
+			  ALU : in STD_LOGIC_VECTOR(15 downto 0);
+			  PC : in STD_LOGIC_VECTOR(15 downto 0);
+			  RamControl : in STD_LOGIC_VECTOR(2 downto 0);
+			  Finish : out STD_LOGIC;
+			  Output : out STD_LOGIC_VECTOR(15 downto 0);
+			  Ins : out STD_LOGIC_VECTOR(15 downto 0);
+			  RAM1ADDR : out  STD_LOGIC_VECTOR (17 downto 0);
+           RAM1DATA : inout  STD_LOGIC_VECTOR (15 downto 0);
+           RAM1_EN : out  STD_LOGIC;
+           RAM1_OE : out  STD_LOGIC;
+           RAM1_WE : out  STD_LOGIC;
+			  RAM2ADDR : out  STD_LOGIC_VECTOR (17 downto 0);
+           RAM2DATA : inout  STD_LOGIC_VECTOR (15 downto 0);
+           RAM2_EN : out  STD_LOGIC;
+           RAM2_OE : out  STD_LOGIC;
+           RAM2_WE : out  STD_LOGIC;
+			  DATA_READY : in  STD_LOGIC;
+           RDN : out  STD_LOGIC;
+           TBRE : in  STD_LOGIC;
+           TSRE : in  STD_LOGIC;
+           WRN : out  STD_LOGIC;
+			  DYP : out STD_LOGIC_VECTOR(6 downto 0);
+           CLK : in  STD_LOGIC);
+end component;
+
 begin
 	
 	CPU_ENTITY: CPU port map ( 
