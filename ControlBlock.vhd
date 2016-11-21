@@ -130,9 +130,9 @@ begin
 		
 	end process;
 	
-	process(Period)
+	process(Period,Instruction)
 	begin
-		if(CLK'event and CLK ='1') then
+--		if(CLK'event and CLK ='1') then
 			
 			if(Period = 1) then
 				RAControl <= "00000";
@@ -267,18 +267,18 @@ begin
 					RAControl <= "11110";
 				end if;
 			end if;
-		end if;
+--		end if;
 	end process;
 	
-	process(Period)
+	process(Period,Instruction)
 	begin
 --		if(Runable = '1') then
 --			RamControl <= "001";
-		if(CLK'EVENT and CLK = '1') then
+--		if(CLK'EVENT and CLK = '1') then
 			if(Period = 1) then
 				RamControl <= "011";
 			elsif(Period = 2) then
-			
+				RamControl <= "000";
 			elsif(Period = 3) then
 				case Instruction(15 downto 11) is
 					when "10011" =>--LW
@@ -331,7 +331,7 @@ begin
 				RamControl <= "001";
 			else
 			end if;
-		end if;
+--		end if;
 	end process;
 
 

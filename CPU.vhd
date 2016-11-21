@@ -203,10 +203,11 @@ begin
 	);
 		
 	with OutPeriod select FPGA_LED <=
-		PC when "0001",
-		Ins when "0010",
-		ALU when "0011",
-		Output when others;
+		RAControl&RamControl&ALU(7 downto 0) when others;
+--		PC when "0001",
+--		Ins when "0010",
+--		ALU when "0011",
+--		Output when others;
 	
 end Behavioral;
 
