@@ -98,19 +98,19 @@ begin
 					Period <= 1;
 				else
 				end if;
-			elsif(Instruction(15 downto 11) = "11101" and Instruction(7 downto 0) = "01000000") then
-				if(Period = 1) then
-					Period <= 2;
-				elsif(Period = 2) then
-					Period <= 3;
-				elsif(Period = 3) then
-					Period <= 4;
-				elsif(Period = 4) then
-					Period <= 5;
-				elsif(Period = 5) then
-					Period <= 1;
-				else
-				end if;
+--			elsif(Instruction(15 downto 11) = "11101" and Instruction(7 downto 0) = "01000000") then
+--				if(Period = 1) then
+--					Period <= 2;
+--				elsif(Period = 2) then
+--					Period <= 3;
+--				elsif(Period = 3) then
+--					Period <= 4;
+--				elsif(Period = 4) then
+--					Period <= 5;
+--				elsif(Period = 5) then
+--					Period <= 1;
+--				else
+--				end if;
 			else
 				if(Period = 1) then
 						Period <= 2;
