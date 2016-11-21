@@ -96,12 +96,15 @@ begin
 					when 1 =>
 						RAM1ADDR <= "0000000000000000"+count;
 						case count is
-							when 0 => RAM1DATA <= "01001"&"000"&"00000000"; --ADDIU R0 0x00
-							when 1 => RAM1DATA <= "01001"&"001"&"00000000"; --ADDIU R1 0x00
-							when 2 => RAM1DATA <= "01100011"&"00000000"; --ADDSP 0x00
-							when 3 => RAM1DATA <= "01001"&"000"&"00000001"; --ADDIU R0 0x01
-							when 4 => RAM1DATA <= "01000"&"000"&"001"&"0"&"0011"; --ADDIU3 R0 R1 0x03
-							when 5 => RAM1DATA <= "01100011"&"00010001"; --ADDSP 0x11
+							when 0 => RAM1DATA <= "01101"&"000"&"00000101"; --LI R0 0x05
+							when 1 => RAM1DATA <= "01101"&"001"&"00000011"; --LI R1 0x03
+							when 2 => RAM1DATA <= "11100"&"000"&"001"&"010"&"01"; --ADDU R0 R1 R2
+							when 3 => RAM1DATA <= "11101"&"010"&"000"&"01100"; --AND R2 R0
+							when 4 => RAM1DATA <= "01111"&"011"&"010"&"00000"; --MOVE R3 R2
+							when 5 => RAM1DATA <= "11110"&"011"&"00000001"; --MTIH R3
+							when 6 => RAM1DATA <= "11110"&"100"&"00000000"; --MFIH R4
+							when 7 => RAM1DATA <= "01100100"&"100"&"00000"; --MTSP R4
+							when 8 => RAM1DATA <= "00000"&"101"&"00001001"; --ADDSP3 R5 0x11
 							--when 3 => RAM1DATA <= "00010"&"00000000001"; --B 0x01
 							--when 4 => RAM1DATA <= "00010"&"00000000001"; --B 0x01
 							when others => RAM1DATA <= (others => '1');
@@ -109,7 +112,7 @@ begin
 						state <= 2;
 					when 2 =>
 						RAM1_WE <= '0';
-						if(count=6)then
+						if(count=9)then
 							state <= 3;
 						else
 							state <= 0;
