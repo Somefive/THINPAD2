@@ -59,17 +59,17 @@ begin
 
 	process(Finish,Instruction)
 	begin
+		--if(Instruction = "1111111111111111") then
+			--Runable <= '1';
 		if(Finish'event and Finish='1') then--??
 			Runable <= '0';
-		elsif(Instruction = "1111111111111111") then
-			Runable <= '1';
 			--RamControl <= "001";
 		end if;
 	end process;
 
 	process(CLK,Finish)
 	begin
-		if(CLK'event and CLK = '0') then
+		if(CLK'event and CLK = '1') then
 			if(Runable = '1') then
 				Period <= 4;
 			elsif(Instruction(15 downto 11) = "10011" or Instruction(15 downto 11) = "10010") then
@@ -288,9 +288,9 @@ begin
 					when "10010" => --LW_SP
 						RamControl <= "010";
 					when "11011" =>--SW
-						RamControl <= "101";
-					when "11010" =>
 						RamControl <= "110";
+					when "11010" =>
+						RamControl <= "101";
 					when others =>
 				end case;
 			elsif(Period = 4) then
@@ -303,30 +303,42 @@ begin
 						RamControl <= "111";
 					when "11010" =>
 						RamControl <= "111";
-					when "11101" =>
-						case Instruction(4 downto 0) is
-							when "00000" =>						
-								case Instruction(7 downto 5) is
-									when "010" =>					-- 16.MFPC
-									when others =>
-								end case;
-							when others=>
-						end case;
+--					when "11101" =>
+--						case Instruction(4 downto 0) is
+--							when "00000" =>						
+--								case Instruction(7 downto 5) is
+--									when "010" =>					-- 16.MFPC
+--									when others =>
+--								end case;
+--							when others=>
+--						end case;
 					when others =>
 						RamControl <= "001";
 				end case;
 			elsif(Period = 5) then
 				case Instruction(15 downto 11) is
-					when "11101" =>
-						case Instruction(4 downto 0) is
-							when "00000" =>						
-								case Instruction(7 downto 5) is
-									when "010" =>					-- 16.MFPC
-										RamControl <= "001";
-									when others =>
-								end case;
-							when others=>
-						end case;
+--					when "11101" =>
+--						case Instruction(4 downto 0) is
+--							when "00000" =>						
+--								case Instruction(7 downto 5) is
+--									when "010" =>					-- 16.MFPC
+--										RamControl <= "001";
+--									when others =>
+--								end case;
+--							when others=>
+--						end case;
+					when "11011"|"11010" =>
+						if(Finish='1')then
+							RamControl <= "001";
+						else
+							RamControl <= "111";
+						end if;
+					when "10011"|"10010" =>
+						if(Finish='1')then
+							RamControl <= "001";
+						else
+							RamControl <= "100";
+						end if;
 					when others =>
 				end case;
 			elsif(Period = 6) then

@@ -67,7 +67,7 @@ component DigitLights is
 end component;
 
 signal state: integer range 0 to 7:=0;
-signal uart_buf: STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+shared variable uart_buf: STD_LOGIC_VECTOR (7 downto 0) := "00000000";
 signal boot: STD_LOGIC := '1';
 shared variable count: integer range 0 to 63:=0;
 begin
@@ -96,15 +96,13 @@ begin
 					when 1 =>
 						RAM1ADDR <= "0000000000000000"+count;
 						case count is
-							when 0 => RAM1DATA <= "01101"&"000"&"00000101"; --LI R0 0x05
-							when 1 => RAM1DATA <= "01101"&"001"&"00000011"; --LI R1 0x03
-							when 2 => RAM1DATA <= "11100"&"000"&"001"&"010"&"01"; --ADDU R0 R1 R2
-							when 3 => RAM1DATA <= "11101"&"010"&"000"&"01100"; --AND R2 R0
-							when 4 => RAM1DATA <= "01111"&"011"&"010"&"00000"; --MOVE R3 R2
-							when 5 => RAM1DATA <= "11110"&"011"&"00000001"; --MTIH R3
-							when 6 => RAM1DATA <= "11110"&"100"&"00000000"; --MFIH R4
-							when 7 => RAM1DATA <= "01100100"&"100"&"00000"; --MTSP R4
-							when 8 => RAM1DATA <= "00000"&"101"&"00001001"; --ADDSP3 R5 0x11
+							when 0 => RAM1DATA <= "01101"&"110"&"11011111"; --LI R6 0xBF
+							when 1 => RAM1DATA <= "00110"&"110"&"110"&"00000"; --SLL R6 R6 0x00
+							when 2 => RAM1DATA <= "10011"&"110"&"001"&"00000"; --LW R6 R1 0x00
+							when 3 => RAM1DATA <= "01001"&"001"&"00000001"; --ADDIU R1 0x01
+							when 4 => RAM1DATA <= "11011"&"110"&"001"&"00000"; --SW R6 R1 0x00
+							when 5 => RAM1DATA <= "00010"&"11111111101"; --B 0xfd
+							--when 6 => RAM1DATA <= "11101"&"000"&"01000000"; --MFPC R0
 							--when 3 => RAM1DATA <= "00010"&"00000000001"; --B 0x01
 							--when 4 => RAM1DATA <= "00010"&"00000000001"; --B 0x01
 							when others => RAM1DATA <= (others => '1');
@@ -112,18 +110,28 @@ begin
 						state <= 2;
 					when 2 =>
 						RAM1_WE <= '0';
-						if(count=9)then
+						if(count=6)then
 							state <= 3;
 						else
 							state <= 0;
 						end if;
 						count := count+1;
-					when others =>
+					when 3 =>
 						RAM1_WE <= '1';
+						state <= 4;
+					when 4 =>
+						RAM1ADDR <= "00"&PC;
+						RAM1DATA <= (others => 'Z');
+						RAM1_OE <= '0';
+						RAM1_EN <= '0';
+						RAM1_WE <= '1';
+						WRN <= '1';
+						RDN <= '1';
+						state <= 5;
+					when others =>
 						state <= 0;
 						boot <= '0';
 						finish <= '1';
-						RAM1ADDR <= "000000000000000000";
 				end case;
 			else
 				case RamControl is
@@ -163,7 +171,6 @@ begin
 						RAM1_OE <= '1';
 						RAM1_WE <= '1';
 						WRN <= '1';
-						FINISH <= '0';
 						case state is
 							when 0 => -- RAM Read Finish
 								Output <= RAM1DATA;
@@ -192,9 +199,9 @@ begin
 							RDN <= '1';
 							WRN <= '1';
 							if(ALU(0)='0')then
-								uart_buf <= RegX(7 downto 0);
+								uart_buf := RegX(7 downto 0);
 							else
-								uart_buf <= "0000000"&DATA_READY;
+								uart_buf := "0000000"&DATA_READY;
 							end if;
 							state <= 1;
 						else -- Ram Write
@@ -216,9 +223,9 @@ begin
 							RDN <= '1';
 							WRN <= '1';
 							if(ALU(0)='0')then
-								uart_buf <= RegY(7 downto 0);
+								uart_buf := RegY(7 downto 0);
 							else
-								uart_buf <= "0000000"&DATA_READY;
+								uart_buf := "0000000"&DATA_READY;
 							end if;
 							state <= 1;
 						else -- Ram Write
@@ -236,21 +243,25 @@ begin
 						RAM1_EN <= '1';
 						RAM1_OE <= '1';
 						RDN <= '1';
-						WRN <= '1';
 						case state is
 							when 0 => -- Finish Write
+								WRN <= '1';
 								FINISH <= '1';
 							when 1 =>
-								RAM1DATA(7 downto 0) <= uart_buf;
 								WRN <= '0';
+								RAM1DATA(7 downto 0) <= uart_buf;
 								state <= 2;
-							when 2 => -- UART Writing
-								if(TBRE='1')then
-									state <= 3;
-								end if;
+							when 2 =>
+								WRN <= '1';
+								state <= 3;
 							when 3 => -- UART Writing
+								if(TBRE='1')then
+									state <= 4;
+								end if;
+							when 4 => -- UART Writing
 								if(TSRE='1')then
-									state <= 0;
+									WRN <= '1';
+									FINISH <= '1';
 								end if;
 							when others =>
 						end case;

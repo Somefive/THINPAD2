@@ -56,14 +56,20 @@ begin
 				when "011" =>
 					if(RegX = "0000000000000000") then
 						BufPC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+					else
+						BufPC <= PC + 1;
 					end if;
 				when "100" =>
 					if(RegX /= "0000000000000000") then
 						BufPC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+					else
+						BufPC <= PC + 1;
 					end if;
 				when "101" =>
 					if(T = '0') then
 						BufPC <= PC + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
+					else
+						BufPC <= PC + 1;
 					end if;
 				when "110" =>
 					BufPC <= RegX;
