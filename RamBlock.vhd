@@ -106,12 +106,12 @@ begin
 						state <= 2;
 					when 2 =>
 						RAM1_WE <= '0';
-						count := count+1;
 						if(count=3)then
 							state <= 3;
 						else
 							state <= 0;
 						end if;
+						count := count+1;
 					when others =>
 						RAM1_WE <= '1';
 						state <= 0;
