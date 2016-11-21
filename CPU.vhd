@@ -203,7 +203,8 @@ begin
 	);
 		
 	with OutPeriod select FPGA_LED <=
-		RamControl&Finish&ALU(11 downto 0) when others;
+		PC(7 DOWNTO 0)&ALU(7 DOWNTO 0) when others;
+--		RamControl&Finish&ALU(11 downto 0) when others;
 --		RAControl&RamControl&PCControl&ALU(4 downto 0) when others;
 --		PC when "0001",
 --		Ins when "0010",

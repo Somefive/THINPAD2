@@ -147,7 +147,7 @@ begin
 					ALU <= RegX;
 				when "10001" =>	--MTSP
 					DestReg := "1001"; --RegSP
-					ALU <= RegX;
+					ALU <= RegY;
 				when "10010" =>	--NEG
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALU <= "0000000000000000" - RegY;
