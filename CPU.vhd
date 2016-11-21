@@ -100,6 +100,15 @@ component PCBlock is
 			  CLK : in STD_LOGIC);
 end component;
 
+component ControlBlock is
+    Port ( Instruction : in  STD_LOGIC_VECTOR(15 downto 0);
+           Finish : in  STD_LOGIC;
+           CLK : in  STD_LOGIC;
+           PCControl : out  STD_LOGIC_VECTOR(2 downto 0);
+           RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
+           RamControl : out  STD_LOGIC_VECTOR(2 downto 0);
+			  DYP : out STD_LOGIC_VECTOR(6 downto 0));
+end component;
 
 component RABlock is
     Port ( ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
@@ -111,17 +120,6 @@ component RABlock is
            T : out  STD_LOGIC;
            ALU : out  STD_LOGIC_VECTOR (15 downto 0);
 			  CLK : in STD_LOGIC);
-end component;
-
-component ControlBlock is
-	Port ( Instruction : in  STD_LOGIC_VECTOR(15 downto 0);
-           Finish : in  STD_LOGIC;
-           CLK : in  STD_LOGIC;
-           PCControl : out  STD_LOGIC_VECTOR(2 downto 0);
-           RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
-           RamControl : out  STD_LOGIC_VECTOR(2 downto 0);
-			  DYP : out STD_LOGIC_VECTOR(6 downto 0)
-			  );
 end component;
 
 signal RamControl: STD_LOGIC_VECTOR(2 downto 0):="000";
@@ -140,6 +138,7 @@ signal T: STD_LOGIC:='0';
 
 
 signal state: integer range 0 to 15:=1;
+signal next_state:integer range 0 to 15 := 2;
 signal fake_ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 
 signal start: STD_LOGIC:='0';
@@ -177,14 +176,14 @@ begin
 --		CLK_KEY
 --	);
 	
---	PCBlock_Entity: PCBlock port map (
---		RegX,
---		T,
---		fake_ins(10 downto 0),
---		PCControl,
---		PC,
---		CLK_KEY
---	);
+	PCBlock_Entity: PCBlock port map (
+		RegX,
+		T,
+		Ins(10 downto 0),
+		PCControl,
+		PC,
+		CLK_KEY
+	);
 	
 	ControlBlock_Entity: ControlBlock port map( 
 		Ins,
@@ -196,19 +195,17 @@ begin
 		DYP0
 	);
 	
---	RABlock_Entity : RABlock port map(
---		fake_ins(10 downto 0),
---		PC,
---		Output,
---		RAControl,
---		RegX,
---		RegY,
---		T,
---		ALU,
---		CLK_KEY
---	);
-	
-	
+	RABlock_Entity : RABlock port map(
+		Ins(10 downto 0),
+		PC,
+		Output,
+		RAControl,
+		RegX,
+		RegY,
+		T,
+		ALU,
+		CLK_KEY
+	);
 	
 --	process(start,finish)
 --	begin
@@ -240,61 +237,92 @@ begin
 --		end if;
 --	end process;
 
+	FPGA_LED(15 downto 13) <= PCControl;
+	FPGA_LED(12 downto 8) <= RAControl;
+	FPGA_LED(7 downto 5) <= RamControl;
+	FPGA_LED(4) <= Finish;
+	FPGA_LED(3 downto 0) <= PC(3 downto 0);
+
 	process(CLK_KEY)
 	begin
 		if(CLK_KEY'event and CLK_KEY='0')then
-		case state is
+			case state is
 				when 1 =>
-					
-					FPGA_LED(15 downto 13) <= PCControl;
-					FPGA_LED(9 downto 5) <= RAControl;
-					FPGA_LED(3 downto 1) <= RamControl;
-					FPGA_LED(0) <= Finish;
-					state <= 2;
-				when 2 =>
 					Ins <= SW_DIP;
-					FPGA_LED(15 downto 13) <= PCControl;
-					FPGA_LED(9 downto 5) <= RAControl;
-					FPGA_LED(3 downto 1) <= RamControl;
-					FPGA_LED(0) <= Finish;
-					state <= 3;
+				when 2 =>
+					
 				when 3 =>
-					FPGA_LED(15 downto 13) <= PCControl;
-					FPGA_LED(9 downto 5) <= RAControl;
-					FPGA_LED(3 downto 1) <= RamControl;
-					FPGA_LED(0) <= Finish;
-					state <= 4;
-				when 4=>
-					FPGA_LED(15 downto 13) <= PCControl;
-					FPGA_LED(9 downto 5) <= RAControl;
-					FPGA_LED(3 downto 1) <= RamControl;
-					FPGA_LED(0) <= Finish;
-					state <= 5;
-				when 5=>
-					FPGA_LED(15 downto 13) <= PCControl;
-					FPGA_LED(9 downto 5) <= RAControl;
-					FPGA_LED(3 downto 1) <= RamControl;
-					FPGA_LED(0) <= Finish;
-					state <= 6;
-				when 6=>
-					FPGA_LED(15 downto 13) <= PCControl;
-					FPGA_LED(9 downto 5) <= RAControl;
-					FPGA_LED(3 downto 1) <= RamControl;
-					FPGA_LED(0) <= Finish;
-					state <= 1;
-				when others =>
+				when 4 =>
+				when 5 =>
+				when 6 =>
+				when others=>
 			end case;
+			state <= next_state;
 		end if;
 	end process;
-		
-	process(RESET)
+	
+	process(state)
 	begin
-		if(state = 1) then
-			Finish <= '1';
 		
-		elsif(RESET'event and RESET='1')then
-			Finish <= '0';
-		end if;
+--			if(Runable = '1') then
+--				state <= 4;
+			if(Ins(15 downto 11) = "10011" or Ins(15 downto 11) = "10010") then
+				if(state = 1) then
+					next_state <= 2;
+				elsif(state = 2) then
+					next_state <= 3;
+				elsif(state = 3) then
+					next_state <= 4;
+				elsif(state = 4) then
+					if(Finish='0') then--??
+						next_state <= 5;
+					end if;
+				elsif(state = 5) then
+					next_state <= 6;
+				elsif(state = 6) then
+					next_state <= 1;
+				else
+				end if;
+			elsif(Ins(15 downto 11) = "11011" or Ins(15 downto 11) = "11010") then
+				if(state = 1) then
+					next_state <= 2;
+				elsif(state = 2) then
+					next_state <= 3;
+				elsif(state = 3) then
+					next_state <= 4;
+				elsif(state = 4) then
+					if(Finish='0') then--??
+						next_state <= 5;
+					end if;
+				elsif(state = 5) then
+					next_state <= 1;
+				else
+				end if;
+			elsif(Ins(15 downto 11) = "11101" and Ins(7 downto 0) = "01000000") then
+				if(state = 1) then
+					next_state <= 2;
+				elsif(state = 2) then
+					next_state <= 3;
+				elsif(state = 3) then
+					next_state <= 4;
+				elsif(state = 4) then
+					next_state <= 5;
+				elsif(state = 5) then
+					next_state <= 1;
+				else
+				end if;
+			else
+				if(state = 1) then
+						next_state <= 2;
+					elsif(state = 2) then
+						next_state <= 3;
+					elsif(state = 3) then
+						next_state <= 4;
+					elsif(state = 4) then
+						next_state <= 1;
+					end if;
+			end if;
+
 	end process;
 	
 end Behavioral;

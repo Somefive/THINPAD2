@@ -64,8 +64,8 @@ begin
 	process(CLK,Finish)
 	begin
 		if(CLK'event and CLK = '0') then
-			--if(Runable = '1') then
-				--Period <= 4;
+--			if(Runable = '1') then
+--				Period <= 4;
 			if(Instruction(15 downto 11) = "10011" or Instruction(15 downto 11) = "10010") then
 				if(Period = 1) then
 					Period <= 2;
@@ -106,6 +106,8 @@ begin
 				elsif(Period = 3) then
 					Period <= 4;
 				elsif(Period = 4) then
+					Period <= 5;
+				elsif(Period = 5) then
 					Period <= 1;
 				else
 				end if;
@@ -115,6 +117,8 @@ begin
 					elsif(Period = 2) then
 						Period <= 3;
 					elsif(Period = 3) then
+						Period <= 4;
+					elsif(Period = 4) then
 						Period <= 1;
 					end if;
 			end if;
@@ -128,6 +132,7 @@ begin
 			
 			if(Period = 1) then
 				RAControl <= "00000";
+				--RamControl <= "011";
 			elsif(Period = 2) then
 				case Instruction(15 downto 11) is
 					when "00000" => 								-- 28.ADDSP3
@@ -299,11 +304,16 @@ begin
 						end case;
 					when others =>
 				end case;
+				PCControl <= "111";
 			elsif(Period = 4) then
 				if(Instruction(15 downto 11) = "11101" and Instruction(7 downto 0) = "01000000") then
 					PCControl <= "001";
 				end if;
+				RAControl <= "11110";
 			elsif(Period = 5) then
+				if(Instruction(15 downto 11) = "11101" and Instruction(7 downto 0) = "01000000") then
+					PCControl <= "111";
+				end if;
 			elsif(Period = 6) then
 				case Instruction(15 downto 11) is
 					when "10011" =>--LW
@@ -321,8 +331,8 @@ begin
 	
 	process(Period)
 	begin
-		--if(Runable = '1') then
-			--RamControl <= "001";
+--		if(Runable = '1') then
+--			RamControl <= "001";
 		if(CLK'EVENT and CLK = '1') then
 			if(Period = 1) then
 				RamControl <= "011";
@@ -350,17 +360,39 @@ begin
 						RamControl <= "111";
 					when "11010" =>
 						RamControl <= "111";
+					when "11101" =>
+						case Instruction(4 downto 0) is
+							when "00000" =>						
+								case Instruction(7 downto 5) is
+									when "010" =>					-- 16.MFPC
+									when others =>
+								end case;
+							when others=>
+						end case;
 					when others =>
+						RamControl <= "001";
 				end case;
 			elsif(Period = 5) then
-			
+				case Instruction(15 downto 11) is
+					when "11101" =>
+						case Instruction(4 downto 0) is
+							when "00000" =>						
+								case Instruction(7 downto 5) is
+									when "010" =>					-- 16.MFPC
+										RamControl <= "001";
+									when others =>
+								end case;
+							when others=>
+						end case;
+					when others =>
+				end case;
 			elsif(Period = 6) then
 				RamControl <= "001";--???不是所有经过
 			else
 			end if;
 		end if;
 	end process;
-	
+
 
 end Behavioral;
 
