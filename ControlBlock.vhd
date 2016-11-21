@@ -61,6 +61,8 @@ begin
 	begin
 		if(Finish'event and Finish='1') then--??
 			Runable <= '0';
+		elsif(Instruction = "1111111111111111") then
+			Runable <= '1';
 			--RamControl <= "001";
 		end if;
 	end process;
