@@ -57,7 +57,7 @@ begin
 	DL: DigitLights port map (DYP, Period);
 	OutPeriod <= CONV_STD_LOGIC_VECTOR(Period,4);
 
-	process(Finish)
+	process(Finish,Instruction)
 	begin
 		if(Finish'event and Finish='1') then--??
 			Runable <= '0';
@@ -80,11 +80,11 @@ begin
 				elsif(Period = 3) then
 					Period <= 4;
 				elsif(Period = 4) then
-					if(Finish='0') then--??
-						Period <= 5;
-					end if;
+					Period <= 5;
 				elsif(Period = 5) then
-					Period <= 6;
+					if(Finish='1') then--??
+						Period <= 6;
+					end if;
 				elsif(Period = 6) then
 					Period <= 1;
 				else
@@ -97,11 +97,11 @@ begin
 				elsif(Period = 3) then
 					Period <= 4;
 				elsif(Period = 4) then
-					if(Finish='0') then--??
-						Period <= 5;
-					end if;
+					Period <= 5;
 				elsif(Period = 5) then
-					Period <= 1;
+					if(Finish='1') then--??
+						Period <= 1;
+					end if;
 				else
 				end if;
 --			elsif(Instruction(15 downto 11) = "11101" and Instruction(7 downto 0) = "01000000") then
