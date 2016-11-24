@@ -138,7 +138,7 @@ begin
 					ALU <= RegIH;
 				when "01110" =>	--MFPC
 					DestReg := '0'&ImmLong(10 downto 8);
-					ALU <= PC;
+					ALU <= PC + 1;
 				when "01111" =>	--MOVE
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALU <= RegY;
