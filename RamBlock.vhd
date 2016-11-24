@@ -91,27 +91,31 @@ begin
 						RAM1_WE<='1';
 						RAM1_OE<='1';
 						RAM1_EN<='0';
-						state <= 1;
+						if(count=0)then
+							state<=2;
+						else
+							state <= 1;
+						end if;
 						Finish<= '0';
 					when 1 =>
 						RAM1ADDR <= "0000000000000000"+count;
 						case count is
-							when 0 => RAM1DATA <= "01101"&"000"&"01000001"; --LI R0 0X41
-							when 1 => RAM1DATA <= "01101"&"001"&"01000101"; --LI R1 0X45
-							WHEN 2 => RAM1DATA <= "01111"&"010"&"000"&"00000";	--MOVE R2 R0
-							when 3 => RAM1DATA <= "11101"&"010"&"000"&"01011"; --NEG R2 R0
-							when 4 => RAM1DATA <= "00001"&"00000000000"; --NOP 
-							when 5 => RAM1DATA <= "11101"&"000"&"001"&"01101"; --OR R0 R1
-							when 6 => RAM1DATA <= "00110"&"000"&"001"&"001"&"00"; --SLL R0 R1 0X01
-							when 7 => RAM1DATA <= "11101"&"001"&"01000000"; --MFPC R1
-							WHEN 8 => RAM1DATA <= "01101"&"010"&"00000001"; --LI R2 0X01
-							WHEN 9 => RAM1DATA <= "11101"&"010"&"001"&"00100"; --SLLV R2 R1
-							WHEN 10 => RAM1DATA <= "00110"&"000"&"001"&"000"&"11"; --SRA R0 R1 0
-							WHEN 11 => RAM1DATA <= "11100"&"000"&"001"&"000"&"11"; --SUBU R0 R1 R0
-							WHEN 12 => RAM1DATA <= "01101"&"000"&"01000001"; -- LI R0 0X41
-							WHEN 13 => RAM1DATA <= "01100100"&"000"&"00000"; --MTSP R0
-							WHEN 14 => RAM1DATA <= "11010"&"000"&"00000001"; --SW_SP R0 0X01
-							WHEN 15 => RAM1DATA <= "10010"&"000"&"00000001"; --LW_SP R0 0X01
+--							when 0 => RAM1DATA <= "01101"&"000"&"01000001"; --LI R0 0X41
+--							when 1 => RAM1DATA <= "01101"&"001"&"01000101"; --LI R1 0X45
+--							WHEN 2 => RAM1DATA <= "01111"&"010"&"000"&"00000";	--MOVE R2 R0
+--							when 3 => RAM1DATA <= "11101"&"010"&"000"&"01011"; --NEG R2 R0
+--							when 4 => RAM1DATA <= "00001"&"00000000000"; --NOP 
+--							when 5 => RAM1DATA <= "11101"&"000"&"001"&"01101"; --OR R0 R1
+--							when 6 => RAM1DATA <= "00110"&"000"&"001"&"001"&"00"; --SLL R0 R1 0X01
+--							when 7 => RAM1DATA <= "11101"&"001"&"01000000"; --MFPC R1
+--							WHEN 8 => RAM1DATA <= "01101"&"010"&"00000001"; --LI R2 0X01
+--							WHEN 9 => RAM1DATA <= "11101"&"010"&"001"&"00100"; --SLLV R2 R1
+--							WHEN 10 => RAM1DATA <= "00110"&"000"&"001"&"000"&"11"; --SRA R0 R1 0
+--							WHEN 11 => RAM1DATA <= "11100"&"000"&"001"&"000"&"11"; --SUBU R0 R1 R0
+--							WHEN 12 => RAM1DATA <= "01101"&"000"&"01000001"; -- LI R0 0X41
+--							WHEN 13 => RAM1DATA <= "01100100"&"000"&"00000"; --MTSP R0
+--							WHEN 14 => RAM1DATA <= "11010"&"000"&"00000001"; --SW_SP R0 0X01
+--							WHEN 15 => RAM1DATA <= "10010"&"000"&"00000001"; --LW_SP R0 0X01
 							
 							
 							--when 6 => RAM1DATA <= "11101"&"000"&"01000000"; --MFPC R0
@@ -122,7 +126,7 @@ begin
 						state <= 2;
 					when 2 =>
 						RAM1_WE <= '0';
-						if(count=16)then
+						if(count=0)then
 							state <= 3;
 						else
 							state <= 0;
@@ -169,6 +173,14 @@ begin
 							WRN <= '1';
 							RDN <= '1';
 							state <= 1;
+						elsif(ALU(15 downto 1)="110111110000001")then -- UART Read DATA_READY
+							Output <= "000000000000000"&DATA_READY;
+							RAM1_EN <= '1';
+							RAM1_OE <= '1';
+							RAM1_WE <= '1';
+							WRN <= '1';
+							RDN <= '1';
+							FINISH <= '1';
 						else -- Ram Read
 							RAM1ADDR <= "00"&ALU;
 							RAM1_EN <= '0';
