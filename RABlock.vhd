@@ -88,7 +88,7 @@ begin
 	
 	process(RAControl)
 	begin
-		if(CLK'event and CLK='1')then
+		if(CLK'event and CLK='0')then
 			case RAControl is
 				when "00001" =>	--ADDIU
 					DestReg := '0'&ImmLong(10 downto 8);
