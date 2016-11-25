@@ -111,7 +111,49 @@ component RamBlock is
            CLK : in  STD_LOGIC);
 end component;
 
+signal CLK_CPU: std_logic;
+shared variable count: integer := 0;
+signal mode: std_logic_vector(1 downto 0):="00";
+shared variable max: integer := 1000000;
+
 begin
+	
+	process(RESET)
+	begin
+		if(RESET'event and RESET='1')then
+			case SW_DIP(3 downto 0) is
+				when "1101" => mode <= "01";
+				when "1110" => mode <= "10";
+				when "1111" => mode <= "11";
+				when others => mode <= "00";
+			end case;
+		end if;
+	end process;
+	
+	process(mode)
+	begin
+		if(mode="01")then
+			max:=1000000;
+		elsif(mode="10")then
+			max:=1;
+		elsif(mode="11")then
+			max:=100000;
+		end if;
+	end process;
+	
+	process(CLK1)
+	begin
+		if(mode="00")then
+			CLK_CPU <= CLK_FROM_KEY;
+		elsif(CLK1'event and CLK1='1')then
+			if(count>max)then
+				count:=0;
+				CLK_CPU <= not CLK_CPU;
+			else
+				count:=count+1;
+			end if;
+		end if;
+	end process;
 	
 	CPU_ENTITY: CPU port map ( 
 		SW_DIP,
@@ -133,7 +175,7 @@ begin
 		TBRE,
 		TSRE,
 		WRN,
-		CLK_FROM_KEY,
+		CLK_CPU,
 		CLK_FROM_KEY,
 		RESET);
 
