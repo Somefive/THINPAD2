@@ -133,11 +133,9 @@ begin
 	process(mode)
 	begin
 		if(mode="01")then
-			max:=1000000;
-		elsif(mode="10")then
 			max:=1;
 		elsif(mode="11")then
-			max:=100000;
+			max:=200000;
 		end if;
 	end process;
 	
@@ -145,6 +143,8 @@ begin
 	begin
 		if(mode="00")then
 			CLK_CPU <= CLK_FROM_KEY;
+		elsif(mode<="10")then
+			CLK_CPU <= CLK1;
 		elsif(CLK1'event and CLK1='1')then
 			if(count>max)then
 				count:=0;
