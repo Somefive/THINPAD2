@@ -166,21 +166,21 @@ begin
 					when "010" => -- Read Data
 						RAM1DATA <= (others => 'Z');
 						FINISH <= '0';
-						if(ALU(15 downto 1)="110111110000000")then -- UART Read
+						if(ALU(15 downto 0)="1011111100000000")then -- UART Read
 							RAM1_EN <= '1';
 							RAM1_OE <= '1';
 							RAM1_WE <= '1';
 							WRN <= '1';
 							RDN <= '1';
 							state <= 1;
-						elsif(ALU(15 downto 1)="110111110000001")then -- UART Read DATA_READY
-							Output <= "000000000000000"&DATA_READY;
+						elsif(ALU(15 downto 0)="1011111100000001")then -- UART Read DATA_READY
 							RAM1_EN <= '1';
 							RAM1_OE <= '1';
 							RAM1_WE <= '1';
 							WRN <= '1';
 							RDN <= '1';
-							FINISH <= '1';
+							FINISH <= '0';
+							state <= 3;
 						else -- Ram Read
 							RAM1ADDR <= "00"&ALU;
 							RAM1_EN <= '0';
@@ -212,11 +212,14 @@ begin
 								Output <= "00000000"&RAM1DATA(7 downto 0);
 								RDN <= '1';
 								FINISH <= '1';
+							when 3 =>
+								Output <= "00000000000000"&DATA_READY&'1';
+								FINISH <= '1';
 							when others =>
 						end case;
 					when "101" => --Write RegX
 						FINISH <= '0';
-						if(ALU(15 downto 1)="110111110000000")then --UART Write
+						if(ALU(15 downto 1)="101111110000000")then --UART Write
 							RAM1_EN <= '1';
 							RAM1_OE <= '1';
 							RAM1_WE <= '1';
@@ -240,7 +243,7 @@ begin
 						end if;
 					when "110" => --Write RegY
 						FINISH <= '0';
-						if(ALU(15 downto 1)="110111110000000")then --UART Write
+						if(ALU(15 downto 1)="101111110000000")then --UART Write
 							RAM1_EN <= '1';
 							RAM1_OE <= '1';
 							RAM1_WE <= '1';

@@ -148,13 +148,13 @@ begin
 		Ins(10 downto 0),
 		PCControl,
 		PC,
-		CLK_KEY
+		CLK
 	);
 	
 	ControlBlock_Entity: ControlBlock port map( 
 		Ins,
 		Finish,
-		CLK_KEY,
+		CLK,
 		PCControl,
 		RAControl,
 		RamControl,
@@ -187,7 +187,7 @@ begin
 		TSRE,
 		WRN,
 		DYP1,
-		CLK_KEY
+		CLK
 	);
 	
 	RABlock_Entity : RABlock port map(
@@ -199,11 +199,23 @@ begin
 		RegY,
 		T,
 		ALU,
-		CLK_KEY
+		CLK
 	);
 		
-	with OutPeriod select FPGA_LED <=
-		PC(7 DOWNTO 0)&ALU(7 DOWNTO 0) when others;
+	with SW_DIP select FPGA_LED <=
+		PC     when "0000000000000001",
+		ALU    when "0000000000000010",
+		RegX   when "0000000000000100",
+		RegY   when "0000000000001000",
+		"000000000000000"&T when "0000000000010000",
+		Output when "0000000000100000",
+		Ins    when "0000000001000000",
+		"00000000000"&RAControl      when "0000000010000000",
+		"0000000000000"&RamControl   when "0000000100000000",
+		"0000000000000"&PCControl    when "0000001000000000",
+		"000000000000000"&Finish     when "0000010000000000",
+		"000000000000000"&DATA_READY when "0000100000000000",
+		"1010101010101010" when others;
 --		RamControl&Finish&ALU(11 downto 0) when others;
 --		RAControl&RamControl&PCControl&ALU(4 downto 0) when others;
 --		PC when "0001",

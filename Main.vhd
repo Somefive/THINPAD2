@@ -133,7 +133,7 @@ begin
 		TBRE,
 		TSRE,
 		WRN,
-		CLK1,
+		CLK_FROM_KEY,
 		CLK_FROM_KEY,
 		RESET);
 
