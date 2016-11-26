@@ -50,21 +50,29 @@ component DigitLights is
            NUMBER : in  INTEGER);
 end component;
 
-signal Period : INTEGER RANGE 0 TO 15 := 1;--??
+signal Period : INTEGER RANGE 0 TO 15;--??
 signal Runable : STD_LOGIC := '1';
 
-signal UpPeriod : INTEGER RANGE 0 TO 15 := 1;
-signal DownPeriod: INTEGER RANGE 0 TO 15 := 0;
+signal UpPeriod : INTEGER RANGE 0 TO 15 := 4;
+signal DownPeriod: INTEGER RANGE 0 TO 15 := 3;
 
 begin
 	DL: DigitLights port map (DYP, Period);
-	OutPeriod <= CONV_STD_LOGIC_VECTOR(Period,4);
+	
+	process(UpPeriod, DownPeriod,CLK)
+	begin
+		if(CLK='0')then
+			Period<=DownPeriod;
+		else
+			Period<=UpPeriod;
+		end if;
+	end process;
 	
 	-- UpPeriod Update
 	process(CLK,Finish)
 	begin
 		if(CLK'event and CLK='1') then
-			if(Runable='1') then
+			if(Runable='0') then
 				UpPeriod <= 4;
 			else
 				UpPeriod <= DownPeriod+1;
@@ -76,7 +84,7 @@ begin
 	process(CLK,Finish)
 	begin
 		if(CLK'event and CLK='0') then
-			if(Runable='1') then
+			if(Runable='0') then
 				DownPeriod <= 3;
 			else
 				case Instruction(15 downto 11) is
@@ -97,12 +105,8 @@ begin
 		end if;
 	end process;
 
-	process(Finish,Instruction)
-	begin
-		if(Finish'event and Finish='1') then
-			Runable <= '0';
-		end if;
-	end process;
+			Runable <= '1';
+
 
 	process(UpPeriod, DownPeriod, Instruction, CLK)
 	begin

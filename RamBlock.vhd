@@ -86,9 +86,7 @@ begin
 	
 	process(RamControl,CLK)
 	begin
-		if(boot='0')then
-			Finish <= '1';
-		elsif(CLK='0')then
+		if(CLK='0')then
 			case RamControl is
 				when "001" => -- Read Ins
 					RAM1ADDR <= "00"&PC;
