@@ -47,7 +47,7 @@ begin
 
 	process(CLK, PCControl)
 	begin
-		if(CLK'event and CLK='1')then
+		if(CLK'event and CLK='0')then
 			case PCControl is
 				when "001" =>
 					BufPC <= PC+ '1';

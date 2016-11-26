@@ -40,7 +40,7 @@ entity ControlBlock is
            RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
            RamControl : out  STD_LOGIC_VECTOR(2 downto 0);
 			  DYP : out STD_LOGIC_VECTOR(6 downto 0);
-			  OutPeriod: out STD_LOGIC_VECTOR(3 downto 0));
+			  START: in STD_LOGIC);
 end ControlBlock;
 
 architecture Behavioral of ControlBlock is
@@ -50,57 +50,49 @@ component DigitLights is
            NUMBER : in  INTEGER);
 end component;
 
-signal Period : INTEGER RANGE 0 TO 15 := 1;--??
-signal Runable : STD_LOGIC := '1';
+signal Period : INTEGER RANGE 0 TO 15 := 1;
+-- signal Runnable : STD_LOGIC := '1';
 
 signal UpPeriod : INTEGER RANGE 0 TO 15 := 1;
 signal DownPeriod: INTEGER RANGE 0 TO 15 := 0;
 
 begin
 	DL: DigitLights port map (DYP, Period);
-	OutPeriod <= CONV_STD_LOGIC_VECTOR(Period,4);
+	
+	with CLK select Period <=
+		DownPeriod when '0',
+		UpPeriod when others;
 	
 	-- UpPeriod Update
-	process(CLK,Finish)
+	process(CLK,START)
 	begin
-		if(CLK'event and CLK='1') then
-			if(Runable='1') then
-				UpPeriod <= 4;
-			else
-				UpPeriod <= DownPeriod+1;
-			end if;
+		if(START='0') then
+			UpPeriod <= 4;
+		elsif(CLK'event and CLK='1') then
+			UpPeriod <= DownPeriod+1;
 		end if;
 	end process;
 	
 	-- DownPeriod Update
-	process(CLK,Finish)
+	process(CLK,START)
 	begin
-		if(CLK'event and CLK='0') then
-			if(Runable='1') then
-				DownPeriod <= 3;
-			else
-				case Instruction(15 downto 11) is
-					when "10011"|"10010"|"11011"|"11010" => -- 6 period
-						if(UpPeriod=6)then
-							DownPeriod <= 1;
-						else
-							DownPeriod <= UpPeriod+1;
-						end if;
-					when others => -- 4 period
-						if(UpPeriod=4)then
-							DownPeriod <= 1;
-						else
-							DownPeriod <= UpPeriod+1;
-						end if;
-				end case;
-			end if;
-		end if;
-	end process;
-
-	process(Finish,Instruction)
-	begin
-		if(Finish'event and Finish='1') then
-			Runable <= '0';
+		if(Start='0') then
+			DownPeriod <= 3;
+		elsif(CLK'event and CLK='0') then			
+			case Instruction(15 downto 11) is
+				when "10011"|"10010"|"11011"|"11010" => -- 6 period
+					if(UpPeriod=6)then
+						DownPeriod <= 1;
+					else
+						DownPeriod <= UpPeriod+1;
+					end if;
+				when others => -- 4 period
+					if(UpPeriod=4)then
+						DownPeriod <= 1;
+					else
+						DownPeriod <= UpPeriod+1;
+					end if;
+			end case;
 		end if;
 	end process;
 
@@ -245,10 +237,10 @@ begin
 		
 	process(UpPeriod, DownPeriod, Instruction, CLK)
 	begin
-		if(CLK='0') then
-			if(DownPeriod=1)then
+		if(CLK='1') then
+			if(UpPeriod=2)then
 				RamControl <= "011";
-			elsif(DownPeriod=3)then
+			elsif(UpPeriod=4)then
 				case Instruction(15 downto 11) is
 					when "10011" =>--LW
 						RamControl <= "010";
@@ -260,7 +252,7 @@ begin
 						RamControl <= "101";
 					when others =>
 				end case;
-			elsif(DownPeriod=5)then
+			elsif(UpPeriod=6)then
 				case Instruction(15 downto 11) is
 					when "11011"|"11010" =>
 						if(Finish='1')then
@@ -278,9 +270,9 @@ begin
 				end case;
 			end if;
 		else
-			if(UpPeriod=2)then
+			if(DownPeriod=3)then
 				RamControl <= "000";
-			elsif(UpPeriod=4)then
+			elsif(DownPeriod=5)then
 				case Instruction(15 downto 11) is
 					when "10011" =>--LW
 						RamControl <= "100";
@@ -293,7 +285,7 @@ begin
 					when others =>
 						RamControl <= "001";
 				end case;
-			elsif(UpPeriod=6)then
+			elsif(DownPeriod=1)then
 				RamControl <= "001";
 			end if;
 		end if;

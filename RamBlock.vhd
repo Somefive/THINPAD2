@@ -56,7 +56,8 @@ entity RamBlock is
            TSRE : in  STD_LOGIC;
            WRN : out  STD_LOGIC;
 			  DYP : out STD_LOGIC_VECTOR(6 downto 0);
-           CLK : in  STD_LOGIC);
+           CLK : in  STD_LOGIC;
+			  START : in STD_LOGIC);
 end RamBlock;
 
 architecture Behavioral of RamBlock is
@@ -67,11 +68,8 @@ component DigitLights is
 end component;
 
 signal state: integer range 0 to 7:=0;
-signal boot_state: integer range 0 to 7:=0;
 shared variable uart_buf: STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-signal boot: STD_LOGIC := '1';
-shared variable count: integer range 0 to 63:=0;
-signal WDATA_READY : STD_LOGIC;
+
 begin
 	
 	DL: DigitLights port map (DYP, state);
@@ -81,13 +79,41 @@ begin
 	RAM2_WE <= '1';
 	RAM2ADDR <= (others => '0');
 	RAM2DATA <= (others => 'Z');
-	
-	WDATA_READY <= TBRE and TSRE;
+
+	process(RamControl,CLK)
+	begin
+		if(CLK'event and CLK='1' and RamControl="001")then
+			Ins<=RAM1DATA;
+		end if;
+	end process;
 	
 	process(RamControl,CLK)
 	begin
-		if(boot='0')then
-			Finish <= '1';
+		if(CLK'event and CLK='0' and RamControl="010")then
+			case state is
+				when 0 => -- RAM Read
+					Output <= RAM1DATA;
+				when 1 => -- UART Data Read
+					Output <= "00000000"&RAM1DATA(7 downto 0);
+				when 2 => -- UART State Read
+					Output <= "00000000000000"&DATA_READY&(TBRE and TSRE);
+				when others =>
+			end case;
+		end if;
+	end process;
+	
+	process(RamControl,CLK)
+	begin
+		if(START='0')then
+			RAM1_EN <= '1';
+			RAM1_OE <= '1';
+			RAM1_WE <= '1';
+			RAM1ADDR <= (others => '0');
+			RAM1DATA <= (others => 'Z');
+			WRN <= '1';
+			RDN <= '1';
+			state <= 0;
+			uart_buf:="00000000";
 		elsif(CLK='0')then
 			case RamControl is
 				when "001" => -- Read Ins
@@ -105,15 +131,6 @@ begin
 					WRN <= '1';
 					RDN <= '1';
 					FINISH <= '1';
-					case state is
-						when 0 => -- RAM Read
-							Output <= RAM1DATA;
-						when 1 => -- UART Data Read
-							Output <= "00000000000000"&DATA_READY&WDATA_READY;
-						when 2 => -- UART State Read
-							Output <= "00000000"&RAM1DATA(7 downto 0);
-						when others =>
-					end case;
 				when "111" => --Finish Write Reg
 					RAM1_WE <= '1';
 					RAM1_EN <= '1';
@@ -139,24 +156,25 @@ begin
 		else
 			case RamControl is
 				when "011" => -- Finish Read Ins
-					Ins <= RAM1DATA;
 					RAM1_OE <= '1';
 					RAM1_EN <= '1';
 				when "010" => -- Read Data
 					RAM1DATA <= (others => 'Z');
 					RAM1_WE <= '1';
 					WRN <= '1';
-					RDN <= '1';
 					FINISH <= '0';
 					if(ALU(15 downto 1)="101111110000000")then -- UART Read
 						RAM1_EN <= '1';
 						RAM1_OE <= '1';
 						if(ALU(0)='0')then
+							RDN <= '0';
 							state <= 1; -- UART Data Read
 						else
+							RDN <= '1';
 							state <= 2; -- UART State Read
 						end if;
 					else -- Ram Read
+						RDN <= '1';
 						RAM1ADDR <= "00"&ALU;
 						RAM1_EN <= '0';
 						RAM1_OE <= '0';
@@ -177,7 +195,7 @@ begin
 								uart_buf := RegY(7 downto 0);
 							end if;
 						else
-							uart_buf := "000000"&DATA_READY&WDATA_READY;
+							uart_buf := "000000"&DATA_READY&(TBRE and TSRE);
 						end if;
 						state <= 1; -- UART Write
 					else -- Ram Write
