@@ -54,7 +54,12 @@ entity CPU is
            WRN : out  STD_LOGIC;
            CLK : in  STD_LOGIC;
 			  CLK_KEY : in STD_LOGIC;
-           RESET : in  STD_LOGIC);
+           RESET : in  STD_LOGIC;
+			  hs    : out std_logic;
+			  vs    : out std_logic;
+			  redOut : out std_logic_vector(2 downto 0);
+			  greenOut : out std_logic_vector(2 downto 0);
+			  blueOut : out std_logic_vector(2 downto 0));
 end CPU;
 
 architecture Behavioral of CPU is
@@ -121,8 +126,59 @@ component RABlock is
            RegY : out  STD_LOGIC_VECTOR (15 downto 0);
            T : out  STD_LOGIC;
            ALU : out  STD_LOGIC_VECTOR (15 downto 0);
-			  CLK : in STD_LOGIC);
+			  CLK : in STD_LOGIC;
+			  Reg0_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg1_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg2_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg3_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg4_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg5_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg6_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg7_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  RegSP_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  RegIH_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  RegT_out : out STD_LOGIC_VECTOR(3 downto 0));
 end component;
+
+component VGA_Controller is
+	port (
+	--VGA Side
+		hs,vs	: out std_logic;		--行同步、场同步信号
+		oRed	: out std_logic_vector (2 downto 0);
+		oGreen	: out std_logic_vector (2 downto 0);
+		oBlue	: out std_logic_vector (2 downto 0);
+	--RAM side
+--		R,G,B	: in  std_logic_vector (9 downto 0);
+--		addr	: out std_logic_vector (18 downto 0);
+
+	-- data
+		r0: in std_logic_vector(15 downto 0);
+		r1: in std_logic_vector(15 downto 0);
+		r2: in std_logic_vector(15 downto 0);
+		r3: in std_logic_vector(15 downto 0);
+		r4: in std_logic_vector(15 downto 0);
+		r5: in std_logic_vector(15 downto 0);
+		r6: in std_logic_vector(15 downto 0);
+		r7 : in std_logic_vector(15 downto 0);
+	-- font rom
+		romAddr : out std_logic_vector(10 downto 0);
+		romData : in std_logic_vector(7 downto 0);
+	--
+		pc : in std_logic_vector(15 downto 0);
+		cm : in std_logic_vector(15 downto 0);
+		tdata : in std_logic_vector(3 downto 0);
+	--Control Signals
+		reset	: in  std_logic;
+		CLK_in	: in  std_logic			--100M时钟输入
+	);		
+end component;
+
+component fontRom IS
+	port (
+	clka: in std_logic;
+	addra: in std_logic_vector(10 downto 0);
+	douta: out std_logic_vector(7 downto 0));
+END component;
 
 signal RamControl: STD_LOGIC_VECTOR(2 downto 0):="000";
 signal PCControl: STD_LOGIC_VECTOR(2 downto 0):="000";
@@ -137,6 +193,22 @@ signal Finish: STD_LOGIC := '1';
 signal Ins: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal Output: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal T: STD_LOGIC:='0';
+
+signal Reg0 : STD_LOGIC_VECTOR (15 downto 0);
+signal Reg1 : STD_LOGIC_VECTOR (15 downto 0);
+signal Reg2 : STD_LOGIC_VECTOR (15 downto 0);
+signal Reg3 : STD_LOGIC_VECTOR (15 downto 0);
+signal Reg4 : STD_LOGIC_VECTOR (15 downto 0);
+signal Reg5 : STD_LOGIC_VECTOR (15 downto 0);
+signal Reg6 : STD_LOGIC_VECTOR (15 downto 0);
+signal Reg7 : STD_LOGIC_VECTOR (15 downto 0);
+signal RegSP : STD_LOGIC_VECTOR (15 downto 0);
+signal RegIH : STD_LOGIC_VECTOR (15 downto 0);
+
+signal RegT : STD_LOGIC_VECTOR(3 downto 0);
+
+signal fontRomAddr : std_logic_vector(10 downto 0);
+signal fontRomData : std_logic_vector(7 downto 0);
 
 signal OutPeriod: STD_LOGIC_VECTOR(3 downto 0);
 
@@ -199,8 +271,57 @@ begin
 		RegY,
 		T,
 		ALU,
-		CLK
+		CLK,
+		Reg0,
+		Reg1,
+		Reg2,
+		Reg3,
+		Reg4,
+		Reg5,
+		Reg6,
+		Reg7,
+		RegSP,
+		RegIH,
+		RegT
 	);
+	
+	VGA_Entity : VGA_Controller port map(
+	--VGA Side
+		hs,
+		vs,
+		redOut,	
+		greenOut,
+		blueOut,
+	--RAM side
+
+	-- data
+		Reg0,
+		Reg1,
+		Reg2,
+		Reg3,
+		Reg4,
+		Reg5,
+		Reg6,
+		Reg7,
+	-- font rom
+		fontRomAddr,
+		fontRomData,
+	--
+		PC,
+		Ins,
+		RegT,
+	--Control Signals
+		RESET,
+		CLK
+	);		
+	
+	FontRom_Entity : fontRom port map(
+		CLK,
+		fontRomAddr,
+		fontRomData
+	);
+
+
 		
 	with SW_DIP select FPGA_LED <=
 		PC     when "0000000000000001",

@@ -53,7 +53,9 @@ entity Main is
            TSRE : in  STD_LOGIC;
            WRN : out  STD_LOGIC;
            CLK_FROM_KEY : in  STD_LOGIC;
-           RESET : in  STD_LOGIC);
+           RESET : in  STD_LOGIC;
+			  hs,vs : out std_logic;
+			  redOut, greenOut, blueOut : out std_logic_vector(2 downto 0));
 end Main;
 
 architecture Behavioral of Main is
@@ -80,7 +82,9 @@ component CPU is
            WRN : out  STD_LOGIC;
            CLK : in  STD_LOGIC;
 			  CLK_KEY : in STD_LOGIC;
-           RESET : in  STD_LOGIC);
+           RESET : in  STD_LOGIC;
+			  hs,vs : out std_logic;
+			  redOut, greenOut, blueOut : out std_logic_vector(2 downto 0));
 end component;
 
 component RamBlock is
@@ -177,7 +181,12 @@ begin
 		WRN,
 		CLK_CPU,
 		CLK_FROM_KEY,
-		RESET);
+		RESET,
+		hs,
+		vs,
+		redOut,
+		greenOut,
+		blueOut);
 
 end Behavioral;
 
