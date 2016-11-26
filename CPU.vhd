@@ -140,61 +140,81 @@ signal Output: STD_LOGIC_VECTOR(15 downto 0):="0000000000000000";
 signal T: STD_LOGIC:='0';
 
 signal START: STD_LOGIC:='0';
-signal state: integer;
-signal st_low:integer:=1;
-signal st_high:integer:=2;
+--signal state: integer;
+--signal st_low:integer:=1;
+--signal st_high:integer:=2;
 begin
-	DL: DigitLights port map(DYP0,state);
-	with CLK_KEY select state <=
-		st_low when '0',
-		st_high when others;
-	process(CLK_KEY)
-	begin
-		if(START='0')then
-			st_low<=1;
-		elsif(CLK_KEY'event and CLK_KEY='0')then
-			st_low<=st_high+1;
-		end if;
-	end process;
+--	DL: DigitLights port map(DYP0,state);
+--	with CLK_KEY select state <=
+--		st_low when '0',
+--		st_high when others;
+--	process(CLK_KEY)
+--	begin
+--		if(START='0')then
+--			st_low<=1;
+--		elsif(CLK_KEY'event and CLK_KEY='0')then
+--			st_low<=st_high+1;
+--		end if;
+--	end process;
+--	
+--	process(CLK_KEY)
+--	begin
+--		if(START='0')then
+--			st_high<=2;
+--		elsif(CLK_KEY'event and CLK_KEY='1')then
+--			st_high<=st_low+1;
+--		end if;
+--	end process;
+--	
+--	process(state)
+--	begin
+--		if(START='0')then
+--		else
+--		case state is
+--			when 4 =>
+--				ALU <= "0100000000000000";
+--				RegX <= "0000000010000000";
+--				RegY <= "0000000000001000";
+--				RamControl <= "101";
+--			when 5 =>
+--				RamControl <= "111";
+--			when 6 =>
+--				ALU <= "1011111100000001";
+--				RamControl <= "010";
+--			when 7 =>
+--				RamControl <= "100";
+--				FPGA_LED <= Output;
+--			when 8 =>
+--				ALU <= "1011111100000000";
+--				RegX <= "0000000010000000";
+--				RegY <= "0000000000001000";
+--				RamControl <= "110";
+--			when 9 =>
+--				RamControl <= "111";
+--			when others =>
+--		end case;
+--		end if;
+--	end process;
+
+	PCBlock_Entity: PCBlock port map (
+		RegX,
+		T,
+		Ins(10 downto 0),
+		PCControl,
+		PC,
+		CLK
+	);
 	
-	process(CLK_KEY)
-	begin
-		if(START='0')then
-			st_high<=2;
-		elsif(CLK_KEY'event and CLK_KEY='1')then
-			st_high<=st_low+1;
-		end if;
-	end process;
-	
-	process(state)
-	begin
-		if(START='0')then
-		else
-		case state is
-			when 4 =>
-				ALU <= "0100000000000000";
-				RegX <= "0000000010000000";
-				RegY <= "0000000000001000";
-				RamControl <= "101";
-			when 5 =>
-				RamControl <= "111";
-			when 6 =>
-				ALU <= "1011111100000001";
-				RamControl <= "010";
-			when 7 =>
-				RamControl <= "100";
-				FPGA_LED <= Output;
-			when 8 =>
-				ALU <= "1011111100000000";
-				RegX <= "0000000010000000";
-				RegY <= "0000000000001000";
-				RamControl <= "110";
-			when 9 =>
-				RamControl <= "111";
-			when others =>
-		end case;
-		end if;
-	end process;
+	ControlBlock_Entity: ControlBlock port map( 
+		Ins,
+		Finish,
+		CLK,
+		PCControl,
+		RAControl,
+		RamControl,
+		DYP0,
+		START
+	);
 	
 	RamBlock_Entity: RamBlock port map(
 		RegX,
@@ -221,85 +241,37 @@ begin
 		TSRE,
 		WRN,
 		DYP1,
-		CLK_KEY,
+		CLK,
 		START
 	);
---	PCBlock_Entity: PCBlock port map (
---		RegX,
---		T,
---		Ins(10 downto 0),
---		PCControl,
---		PC,
---		CLK
---	);
---	
---	ControlBlock_Entity: ControlBlock port map( 
---		Ins,
---		Finish,
---		CLK,
---		PCControl,
---		RAControl,
---		RamControl,
---		DYP0,
---		START
---	);
---	
---	RamBlock_Entity: RamBlock port map(
---		RegX,
---		RegY,
---		ALU,
---		PC,
---		RamControl,
---		Finish,
---		Output,
---		Ins,
---		RAM1ADDR,
---		RAM1DATA,
---		RAM1_EN,
---		RAM1_OE,
---		RAM1_RW,
---		RAM2ADDR,
---		RAM2DATA,
---		RAM2_EN,
---		RAM2_OE,
---		RAM2_RW,
---		DATA_READY,
---		RDN,
---		TBRE,
---		TSRE,
---		WRN,
---		DYP1,
---		CLK,
---		START
---	);
---	
---	RABlock_Entity : RABlock port map(
---		Ins(10 downto 0),
---		PC,
---		Output,
---		RAControl,
---		RegX,
---		RegY,
---		T,
---		ALU,
---		CLK
---	);
---		
---	with SW_DIP select FPGA_LED <=
---		PC     when "0000000000000001",
---		ALU    when "0000000000000010",
---		RegX   when "0000000000000100",
---		RegY   when "0000000000001000",
---		"000000000000000"&T when "0000000000010000",
---		Output when "0000000000100000",
---		Ins    when "0000000001000000",
---		"00000000000"&RAControl      when "0000000010000000",
---		"0000000000000"&RamControl   when "0000000100000000",
---		"0000000000000"&PCControl    when "0000001000000000",
---		"000000000000000"&Finish     when "0000010000000000",
---		"00000000000000"&DATA_READY&(TBRE and TSRE) when "0000100000000000",
---		"000000000000000"&START      when "0001000000000000",
---		"1010101010101010" when others;
+	
+	RABlock_Entity : RABlock port map(
+		Ins(10 downto 0),
+		PC,
+		Output,
+		RAControl,
+		RegX,
+		RegY,
+		T,
+		ALU,
+		CLK
+	);
+		
+	with SW_DIP select FPGA_LED <=
+		PC     when "0000000000000001",
+		ALU    when "0000000000000010",
+		RegX   when "0000000000000100",
+		RegY   when "0000000000001000",
+		"000000000000000"&T when "0000000000010000",
+		Output when "0000000000100000",
+		Ins    when "0000000001000000",
+		"00000000000"&RAControl      when "0000000010000000",
+		"0000000000000"&RamControl   when "0000000100000000",
+		"0000000000000"&PCControl    when "0000001000000000",
+		"000000000000000"&Finish     when "0000010000000000",
+		"00000000000000"&DATA_READY&(TBRE and TSRE) when "0000100000000000",
+		"000000000000000"&START      when "0001000000000000",
+		"1010101010101010" when others;
 		
 	process(RESET)
 	begin
