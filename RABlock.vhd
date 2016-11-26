@@ -55,13 +55,9 @@ signal Reg6: STD_LOGIC_VECTOR (15 downto 0) := "0000000000000000";
 signal Reg7: STD_LOGIC_VECTOR (15 downto 0) := "0000000000000000";
 signal RegSP  : STD_LOGIC_VECTOR (15 downto 0) := "0000000000000000";
 signal RegIH  : STD_LOGIC_VECTOR (15 downto 0) := "0000000000000000";
---signal RegT : STD_LOGIC := '0';
 
---signal Rx: STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
---signal Ry: STD_LOGIC_VECTOR (15 downto 0):="0000000000000000";
-
---shared variable ALUResult : std_logic_vector(15 downto 0):="0000000000000000";
 shared variable DestReg   : std_logic_vector(3 downto 0):="1111";
+signal wbBuf : std_logic_vector(15 downto 0):="0000000000000000";
 
 begin
 	with ImmLong(10 downto 8) select RegX <=
@@ -128,10 +124,10 @@ begin
 					DestReg := '0'&ImmLong(10 downto 8);
 					ALU <= "00000000"&ImmLong(7 downto 0);
 				when "01011" =>	--LW | SW
-					DestReg := "1100"; --ALU
+					DestReg := '0'&ImmLong(7 downto 5);
 					ALU <= RegX + std_logic_vector(resize(signed(ImmLong(4 downto 0)), 16));
 				when "01100" =>	--LW_SP | SW_SP
-					DestReg := "1100"; --ALU
+					DestReg := '0'&ImmLong(10 downto 8);
 					ALU <= RegSP + std_logic_vector(resize(signed(ImmLong(7 downto 0)), 16));
 				when "01101" =>	--MFIH
 					DestReg := '0'&ImmLong(10 downto 8);
@@ -174,50 +170,45 @@ begin
 				when "10111" =>	--SUBU
 					DestReg := '0'&ImmLong(4 downto 2);
 					ALU <= RegX - RegY;
-				when "11000" =>	--MEMX
-					DestReg := '0'&ImmLong(10 downto 8);
-					ALU <= Data;
-				when "11001" =>	--MEMY
-					DestReg := '0'&ImmLong(7 downto 5);
-					ALU <= Data;
 				when others =>
 					DestReg := "1111";
 			end case;
 		end if;
 	end process;
 	
+	with RAControl select wbBuf <=
+		Data when "11101",
+		ALU  when "11110",
+		"0000000000000000" when others;
+	
 	process(CLK)
 	begin
-		if(CLK'event and CLK='1' and RAControl="11110")then
-			case DestReg is
-				when "0000" =>
-					Reg0 <= ALU;
-				when "0001" =>
-					Reg1 <= ALU;
-				when "0010" =>
-					Reg2 <= ALU;
-				when "0011" =>
-					Reg3 <= ALU;
-				when "0100" =>
-					Reg4 <= ALU;
-				when "0101" =>
-					Reg5 <= ALU;
-				when "0110" =>
-					Reg6 <= ALU;
-				when "0111" =>
-					Reg7 <= ALU;
-				when "1001" =>
-					RegSP <= ALU;
-				when "1010" =>
-					--RegT <= T;
-				when "1011" =>
-					--RegX <= Rx;
-				when "1100" =>
-					--ALU <= ALU;
-				when "1101" =>
-					RegIH <= ALU;
-				when others =>
-			end case;
+		if(CLK'event and CLK='1')then
+			if(RAControl="11110" or RAControl="11101")then
+				case DestReg is
+					when "0000" =>
+						Reg0 <= wbBuf;
+					when "0001" =>
+						Reg1 <= wbBuf;
+					when "0010" =>
+						Reg2 <= wbBuf;
+					when "0011" =>
+						Reg3 <= wbBuf;
+					when "0100" =>
+						Reg4 <= wbBuf;
+					when "0101" =>
+						Reg5 <= wbBuf;
+					when "0110" =>
+						Reg6 <= wbBuf;
+					when "0111" =>
+						Reg7 <= wbBuf;
+					when "1001" =>
+						RegSP <= wbBuf;
+					when "1101" =>
+						RegIH <= wbBuf;
+					when others =>
+				end case;
+			end if;
 		end if;
 	end process;
 end Behavioral;

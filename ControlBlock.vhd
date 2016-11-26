@@ -102,13 +102,19 @@ begin
 			if(DownPeriod=1) then
 				RAControl <= "00000";
 			elsif(DownPeriod=3) then
-				RAControl <= "11110";
+				case Instruction(15 downto 11) is
+					when "10011"|"10010" => 
+						RAControl <= "00000";
+					when others =>
+						RAControl <= "11110";
+				end case;
 				PCControl <= "111";
 			elsif(DownPeriod=5) then
 				case Instruction(15 downto 11) is
-					when "10011" => RAControl <= "11001";
-					when "10010" => RAControl <= "11000";
+					when "10011"|"10010" => 
+						RAControl <= "11101";
 					when others =>
+						RAControl <= "00000";
 				end case;
 			end if;
 		else
@@ -228,9 +234,7 @@ begin
 			elsif(UpPeriod=4)then
 				RAControl <= "00000";
 			elsif(UpPeriod=6)then
-				if(Instruction(15 downto 11) = "10011" or Instruction(15 downto 11) = "10010") then
-					RAControl <= "11110";
-				end if;
+				RAControl <= "00000";
 			end if;
 		end if;
 	end process;
