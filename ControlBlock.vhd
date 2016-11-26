@@ -53,8 +53,8 @@ end component;
 signal Period : INTEGER RANGE 0 TO 15 := 1;
 -- signal Runnable : STD_LOGIC := '1';
 
-signal UpPeriod : INTEGER RANGE 0 TO 15 := 1;
-signal DownPeriod: INTEGER RANGE 0 TO 15 := 0;
+signal UpPeriod : INTEGER RANGE 0 TO 15 := 4;
+signal DownPeriod: INTEGER RANGE 0 TO 15 := 3;
 
 begin
 	DL: DigitLights port map (DYP, Period);
@@ -62,7 +62,7 @@ begin
 	with CLK select Period <=
 		DownPeriod when '0',
 		UpPeriod when others;
-	
+
 	-- UpPeriod Update
 	process(CLK,START)
 	begin
