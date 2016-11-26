@@ -135,7 +135,7 @@ begin
 		if(mode="01")then
 			max:=20000;
 		elsif(mode="11")then
-			max:=40000000;
+			max:=4000000;
 		end if;
 	end process;
 	
