@@ -5,3 +5,4 @@
 !*.vhd
 !*.ucf
 !*.xco
+!/ipcore_dir/*.*

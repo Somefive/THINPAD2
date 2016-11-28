@@ -1,0 +1,44 @@
+INFO:sim:172 - Generating IP...
+Applying current project options...
+Finished applying current project options.
+Customizing IP...
+Qt: Untested Windows version 6.2 detected!
+Release 14.7 - Xilinx CORE Generator IP GUI Launcher P.20131013 (nt64)
+Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+ERROR:coreutil - ERROR:sim - Unable to find
+   F:\vdhproj\jisuanji\jisuanji\font.coe
+      Coregen is looking for F:\vdhproj\jisuanji\jisuanji\font.coe
+   ERROR:sim - Unable to find F:\vdhproj\jisuanji\jisuanji\font.coe
+      Coregen is looking for F:\vdhproj\jisuanji\jisuanji\font.coe
+   ERROR:sim:781 - An invalid core configuration has been detected during
+      Customization. Core parameters will be reset to their default values.
+WARNING:coreutil - WARNING:sim:192 - Xco Parameter changed from
+   (Component_Name,fontRom) to
+      (Component_Name,blk_mem_gen_v4_3) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Memory_Type,Single_Port_ROM) to
+      (Memory_Type,Single_Port_RAM) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Write_Width_A,8) to
+      (Write_Width_A,16) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Write_Depth_A,2048) to
+      (Write_Depth_A,16) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Read_Width_A,8) to
+      (Read_Width_A,16) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Write_Width_B,8) to
+      (Write_Width_B,16) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Read_Width_B,8) to
+      (Read_Width_B,16) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Load_Init_File,true) to
+      (Load_Init_File,false) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from
+      (Coe_File,F:\vdhproj\jisuanji\jisuanji\font.coe) to
+      (Coe_File,no_coe_file_loaded) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Port_A_Write_Rate,0) to
+      (Port_A_Write_Rate,50) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Port_B_Clock,0) to
+      (Port_B_Clock,100) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Port_B_Write_Rate,0) to
+      (Port_B_Write_Rate,50) during Recustomization.
+   WARNING:sim:192 - Xco Parameter changed from (Port_B_Enable_Rate,0) to
+      (Port_B_Enable_Rate,100) during Recustomization.
+Cancelled Customization.
+Wrote CGP file for project 'fontRom'.
