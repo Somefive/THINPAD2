@@ -102,7 +102,7 @@ begin
 				CLK_Flash := CLK_Flash + 1;
 				WRN <= '1';
 				RDN <= '1';
-				if(CLK_Flash = 5) then
+				if(CLK_Flash = 10) then
 					CLK_Flash := 0;
 					
 					case flash_state is

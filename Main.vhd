@@ -132,15 +132,29 @@ component RamBlock is
            CLK : in  STD_LOGIC);
 end component;
 
-
+component DCM5 is
+   port ( CLKIN_IN   : in    std_logic; 
+          RST_IN     : in    std_logic; 
+          CLKFX_OUT  : out   std_logic; 
+          CLK0_OUT   : out   std_logic; 
+          CLK2X_OUT  : out   std_logic; 
+          LOCKED_OUT : out   std_logic);
+end component;
 
 signal CLK_CPU: std_logic;
 shared variable count: integer := 0;
 signal mode: std_logic_vector(1 downto 0):="00";
 shared variable max: integer := 1000000;
 
+signal CLK0:std_logic;
+signal CLKFX:std_logic;
+signal CLK2X:std_logic;
+signal LOCKED_OUT:std_logic;
+signal GND0:std_logic:='0';
+
 begin
 
+	DCM_ENTITY: DCM5 port map(CLK1,GND0,CLKFX,CLK0,CLK2X,LOCKED_OUT);
 	
 	process(RESET)
 	begin
@@ -154,21 +168,14 @@ begin
 		end if;
 	end process;
 	
-	process(mode)
-	begin
-		if(mode="01")then
-			max:=1;
-		elsif(mode="11")then
-			max:=200000;
-		end if;
-	end process;
-	
 	process(CLK1)
 	begin
 		if(mode="00")then
 			CLK_CPU <= CLK_FROM_KEY;
 		elsif(mode<="10")then
 			CLK_CPU <= CLK1;
+		elsif(mode<="11")then
+			CLK_CPU <= CLKFX;
 		elsif(CLK1'event and CLK1='1')then
 			if(count>max)then
 				count:=0;
