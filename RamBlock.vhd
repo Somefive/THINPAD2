@@ -56,7 +56,15 @@ entity RamBlock is
            TSRE : in  STD_LOGIC;
            WRN : out  STD_LOGIC;
 			  DYP : out STD_LOGIC_VECTOR(6 downto 0);
-           CLK : in  STD_LOGIC);
+           CLK : in  STD_LOGIC;
+			  Flash_byte : OUT STD_LOGIC := '1';
+			  Flash_vpen : OUT STD_LOGIC := '1';
+			  Flash_ce : OUT STD_LOGIC := '0';
+			  Flash_oe : OUT STD_LOGIC := '1';
+			  Flash_we : OUT STD_LOGIC := '1';
+			  Flash_rp : OUT STD_LOGIC := '1';      
+			  Flash_addr : OUT STD_LOGIC_VECTOR(22 downto 0) := "00000000000000000000000";
+			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ");
 end RamBlock;
 
 architecture Behavioral of RamBlock is
@@ -66,13 +74,20 @@ component DigitLights is
            NUMBER : in  INTEGER);
 end component;
 
+
 signal state: integer range 0 to 7:=0;
 shared variable uart_buf: STD_LOGIC_VECTOR (7 downto 0) := "00000000";
 signal boot: STD_LOGIC := '1';
 shared variable count: integer range 0 to 63:=0;
+
+shared variable CLK_Flash : integer := 0;
+signal Pro_addr : STD_LOGIC_VECTOR(15 downto 0) := "0000000000000000";
+signal Flash_runable : STD_LOGIC := '0';
+signal flash_state : integer range 0 to 10 := 1;
+
 begin
 	
-	DL: DigitLights port map (DYP, state);
+	DL: DigitLights port map (DYP, flash_state);
 	
 	RAM2_EN <= '1';
 	RAM2_OE <= '1';
@@ -83,7 +98,55 @@ begin
 	process(RamControl,CLK)
 	begin
 		if(CLK'event and CLK='1')then
-			if(boot='1')then
+			if(Flash_runable = '0')then
+				CLK_Flash := CLK_Flash + 1;
+				WRN <= '1';
+				RDN <= '1';
+				if(CLK_Flash = 5) then
+					CLK_Flash := 0;
+					
+					case flash_state is
+						when  1=>
+							Flash_we <= '0';
+							Flash_oe <= '1';
+							Flash_ce <= '0';
+							Flash_rp <= '1';
+							Flash_byte <= '1';
+							Flash_vpen <= '1';
+							RAM1_EN <= '0';
+							RAM1_OE <= '1';
+							RAM1_WE <= '0';
+							flash_state <= 2;
+						when 2 =>
+							Flash_data <= x"00FF";
+							RAM1ADDR <= "00" & Pro_addr;
+							flash_state <= 3;
+						when 3 =>
+							Flash_we <= '1';
+							flash_state <= 4;
+						when 4 =>
+							Flash_addr <= "000000" & Pro_addr &'0';
+							Flash_data <= "ZZZZZZZZZZZZZZZZ";
+							Flash_oe <= '0';
+							flash_state <= 5;
+						when 5 =>
+							RAM1DATA <= Flash_data;
+							Flash_oe <= '1';
+							flash_state <= 6;
+						when 6 =>
+							--RAM1_WE <= '0';
+							Pro_addr <= Pro_addr + '1';
+							RAM1_WE <= '1';
+							flash_state <= 1;
+						when others =>
+						
+					end case;
+					if(Pro_addr > x"0400") then
+						flash_state <= 9;
+						Flash_runable <= '1';
+					end if;
+				end if;
+			elsif(boot='1')then
 				case state is
 					when 0 =>
 						WRN<='1';
@@ -303,6 +366,8 @@ begin
 			end if;
 		end if;
 	end process;
+	
+	
 
 end Behavioral;
 

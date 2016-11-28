@@ -53,7 +53,17 @@ entity Main is
            TSRE : in  STD_LOGIC;
            WRN : out  STD_LOGIC;
            CLK_FROM_KEY : in  STD_LOGIC;
-           RESET : in  STD_LOGIC);
+           RESET : in  STD_LOGIC;
+			  hs,vs : out std_logic;
+			  redOut, greenOut, blueOut : out std_logic_vector(2 downto 0);
+			  Flash_byte : OUT STD_LOGIC := '1';
+			  Flash_vpen : OUT STD_LOGIC := '1';
+			  Flash_ce : OUT STD_LOGIC := '0';
+			  Flash_oe : OUT STD_LOGIC := '1';
+			  Flash_we : OUT STD_LOGIC := '1';
+			  Flash_rp : OUT STD_LOGIC := '1';      
+			  Flash_addr : OUT STD_LOGIC_VECTOR(22 downto 0) := "00000000000000000000000";
+			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ");
 end Main;
 
 architecture Behavioral of Main is
@@ -78,9 +88,20 @@ component CPU is
            TBRE : in  STD_LOGIC;
            TSRE : in  STD_LOGIC;
            WRN : out  STD_LOGIC;
+			  CLK_50M : in STD_LOGIC;
            CLK : in  STD_LOGIC;
 			  CLK_KEY : in STD_LOGIC;
-           RESET : in  STD_LOGIC);
+           RESET : in  STD_LOGIC;
+			  hs,vs : out std_logic;
+			  redOut, greenOut, blueOut : out std_logic_vector(2 downto 0);
+			  Flash_byte : OUT STD_LOGIC := '1';
+			Flash_vpen : OUT STD_LOGIC := '1';
+			Flash_ce : OUT STD_LOGIC := '0';
+			Flash_oe : OUT STD_LOGIC := '1';
+			Flash_we : OUT STD_LOGIC := '1';
+			Flash_rp : OUT STD_LOGIC := '1';      
+			Flash_addr : OUT STD_LOGIC_VECTOR(22 downto 0) := "00000000000000000000000";
+			Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ");
 end component;
 
 component RamBlock is
@@ -111,12 +132,15 @@ component RamBlock is
            CLK : in  STD_LOGIC);
 end component;
 
+
+
 signal CLK_CPU: std_logic;
 shared variable count: integer := 0;
 signal mode: std_logic_vector(1 downto 0):="00";
 shared variable max: integer := 1000000;
 
 begin
+
 	
 	process(RESET)
 	begin
@@ -155,6 +179,8 @@ begin
 		end if;
 	end process;
 	
+	
+	
 	CPU_ENTITY: CPU port map ( 
 		SW_DIP,
 		RAM1DATA,
@@ -175,9 +201,23 @@ begin
 		TBRE,
 		TSRE,
 		WRN,
+		CLK1,
 		CLK_CPU,
 		CLK_FROM_KEY,
-		RESET);
+		RESET,
+		hs,
+		vs,
+		redOut,
+		greenOut,
+		blueOut,
+		Flash_byte,
+		Flash_vpen,
+		Flash_ce,
+		Flash_oe,
+		Flash_we ,
+		Flash_rp ,
+		Flash_addr,
+		Flash_data );
 
 end Behavioral;
 

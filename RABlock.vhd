@@ -40,7 +40,18 @@ entity RABlock is
            RegY : buffer  STD_LOGIC_VECTOR (15 downto 0);
            T : buffer  STD_LOGIC;
            ALU : buffer  STD_LOGIC_VECTOR (15 downto 0);
-			  CLK : in STD_LOGIC);
+			  CLK : in STD_LOGIC;
+			  Reg0_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg1_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg2_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg3_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg4_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg5_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg6_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  Reg7_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  RegSP_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  RegIH_out : out STD_LOGIC_VECTOR (15 downto 0);
+			  RegT_out : out STD_LOGIC_VECTOR(3 downto 0));
 end RABlock;
 
 architecture Behavioral of RABlock is
@@ -220,5 +231,17 @@ begin
 			end case;
 		end if;
 	end process;
+	
+	Reg0_out <= Reg0;
+	Reg1_out <= Reg1;
+	Reg2_out <= Reg2;
+	Reg3_out <= Reg3;
+	Reg4_out <= Reg4;
+	Reg5_out <= Reg5;
+	Reg6_out <= Reg6;
+	Reg7_out <= Reg7;
+	RegSP_out <= RegSP;
+	RegIH_out <= RegIH;
+	RegT_out <= DestReg;
 end Behavioral;
 
