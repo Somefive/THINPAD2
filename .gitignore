@@ -2,5 +2,7 @@
 !/.gitignore
 !/documents/*.*
 /documents/~*.*
+/ipcore_dir
+/ipcore_dir/*.*
 !*.vhd
 !*.ucf
