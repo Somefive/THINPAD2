@@ -40,7 +40,8 @@ entity ControlBlock is
            RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
            RamControl : out  STD_LOGIC_VECTOR(2 downto 0);
 			  DYP : out STD_LOGIC_VECTOR(6 downto 0);
-			  OutPeriod: out STD_LOGIC_VECTOR(3 downto 0));
+			  OutPeriod: out STD_LOGIC_VECTOR(3 downto 0);
+			  PCError: in STD_LOGIC);
 end ControlBlock;
 
 architecture Behavioral of ControlBlock is
@@ -57,13 +58,12 @@ begin
 	DL: DigitLights port map (DYP, Period);
 	OutPeriod <= CONV_STD_LOGIC_VECTOR(Period,4);
 
-	process(Finish,Instruction)
+	process(Finish,Instruction,PCError)
 	begin
-		--if(Instruction = "1111111111111111") then
-			--Runable <= '1';
-		if(Finish'event and Finish='1') then--??
+		if(PCError='1') then
+			Runable <= '1';
+		elsif(Finish'event and Finish='1') then
 			Runable <= '0';
-			--RamControl <= "001";
 		end if;
 	end process;
 

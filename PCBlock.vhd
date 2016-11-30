@@ -37,7 +37,8 @@ entity PCBlock is
            ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
            PCControl : in  STD_LOGIC_VECTOR (2 downto 0);
            PC : buffer  STD_LOGIC_VECTOR (15 downto 0);
-			  CLK : in STD_LOGIC);
+			  CLK : in STD_LOGIC;
+			  PCError: out STD_LOGIC);
 end PCBlock;
 
 
@@ -84,6 +85,8 @@ begin
 			PC <= BufPC;
 		end if;
 	end process;
+	
+	PCError <= BufPC(15);
 	
 end Behavioral;
 

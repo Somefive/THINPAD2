@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    21:43:55 11/29/2016 
+-- Create Date:    12:19:39 11/30/2016 
 -- Design Name: 
--- Module Name:    PS2Keyboard - Behavioral 
+-- Module Name:    ps2keyboard - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -30,115 +30,78 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity PS2Keyboard is
-    Port ( fclk : in  STD_LOGIC;
+    Port ( clk : in  STD_LOGIC;
            rst : in  STD_LOGIC;
-           clkin : in  STD_LOGIC;
-           datain : in  STD_LOGIC;
-           keycode : out  STD_LOGIC_VECTOR (7 downto 0));
+           ps2clk : in  STD_LOGIC;
+           ps2data : in  STD_LOGIC;
+           keyCode : out  STD_LOGIC_VECTOR (7 downto 0));
 end PS2Keyboard;
 
 architecture Behavioral of PS2Keyboard is
-type state_type is (delay, start, d0, d1, d2, d3, d4, d5, d6, d7, parity, stop, finish) ;
-signal data, clk, clk1, clk2, odd, fok : std_logic ; -- 毛刺处理内部信号, odd为奇偶校验
-signal code : std_logic_vector(7 downto 0) ; 
-signal state : state_type ;
-begin
-	clk1 <= clkin when rising_edge(fclk) ;
-	clk2 <= clk1 when rising_edge(fclk) ;
-	clk <= (not clk1) and clk2 ;
-	
-	data <= datain when rising_edge(fclk) ;
-	
-	odd <= code(0) xor code(1) xor code(2) xor code(3) 
-		xor code(4) xor code(5) xor code(6) xor code(7) ;
-	
-	keycode <= code when fok = '1' ;
-	
-	process(rst, fclk)
-	begin
-		if rst = '1' then
-			state <= delay ;
-			code <= (others => '0') ;
-			fok <= '0' ;
-		elsif rising_edge(fclk) then
-			fok <= '0' ;
-			case state is 
-				when delay =>
-					state <= start ;
-				when start =>
-					if clk = '1' then
-						if data = '0' then
-							state <= d0 ;
-						else
-							state <= delay ;
-						end if ;
-					end if ;
-				when d0 =>
-					if clk = '1' then
-						code(0) <= data ;
-						state <= d1 ;
-					end if ;
-				when d1 =>
-					if clk = '1' then
-						code(1) <= data ;
-						state <= d2 ;
-					end if ;
-				when d2 =>
-					if clk = '1' then
-						code(2) <= data ;
-						state <= d3 ;
-					end if ;
-				when d3 =>
-					if clk = '1' then
-						code(3) <= data ;
-						state <= d4 ;
-					end if ;
-				when d4 =>
-					if clk = '1' then
-						code(4) <= data ;
-						state <= d5 ;
-					end if ;
-				when d5 =>
-					if clk = '1' then
-						code(5) <= data ;
-						state <= d6 ;
-					end if ;
-				when d6 =>
-					if clk = '1' then
-						code(6) <= data ;
-						state <= d7 ;
-					end if ;
-				when d7 =>
-					if clk = '1' then
-						code(7) <= data ;
-						state <= parity ;
-					end if ;
-				when parity =>
-					if clk = '1' then
-						if (data xor odd) = '1' then
-							state <= stop ;
-						else
-							state <= delay ;
-						end if;
-					end if;
+type stateType is (
+	start,
+	dataInput,
+	odd,
+	finish
+);
+signal state : stateType;							--状态
 
-				when stop =>
-					if clk = '1' then
-						if data = '1' then
+signal clk1, clk2, kclk, kdata : std_logic;  --毛刺处理内部信号
+signal check : std_logic;							--校验位
+signal dataBuffer : std_logic_vector(7 downto 0);
+signal pos : integer range 0 to 7 := 0;
+begin
+	----------------------------------滤波------------------------------------------
+	clk1 <= ps2clk when rising_edge(clk);
+	clk2 <= clk1 when rising_edge(clk);
+	kclk <= (not clk1) and clk2;
+	kdata <= ps2data when rising_edge(clk);
+	--------------------------------------------------------------------------------
+	
+	check <= '1' xor dataBuffer(0) xor dataBuffer(1) xor dataBuffer(2) xor dataBuffer(3) xor dataBuffer(4) xor dataBuffer(5) xor dataBuffer(6) xor dataBuffer(7);  --校验位计算
+	
+	process(clk)
+	begin
+		if(rst='0')then
+			state <= start;
+			keyCode <= (others => '0');
+			pos <= 0;
+		elsif(clk'event and clk='1')then
+			if(kclk='1')then
+				case state is
+					when start =>				--起始状态
+						pos <= 0;
+						if(kdata='0')then
+							state <= dataInput;
+						else
+							state <= start;
+						end if;
+					when dataInput => 		--数据状态
+						dataBuffer(pos) <= kdata;
+						if(pos = 7)then
+							state <= odd;
+						else
+							state <= dataInput;
+						end if;
+						pos <= pos + 1;
+					when odd => 				--校验状态
+						if(check=kdata)then
 							state <= finish;
 						else
-							state <= delay;
+							state <= start;
 						end if;
-					end if;
-
-				when finish =>
-					state <= delay ;
-					fok <= '1' ;
-				when others =>
-					state <= delay ;
-			end case ; 
-		end if ;
-	end process ;
-
+					when finish => 			-- 结束状态
+						if(kdata='1')then
+							keyCode <= dataBuffer;
+						else
+							keyCode <= (others => '0');
+						end if;
+						state <= start;
+					when others => 
+						state <= start;
+				end case;
+			end if;
+		end if;
+	end process;
 end Behavioral;
 

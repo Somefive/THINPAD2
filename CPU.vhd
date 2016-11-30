@@ -65,7 +65,9 @@ entity CPU is
 			  Flash_we : OUT STD_LOGIC := '1';
 			  Flash_rp : OUT STD_LOGIC := '1';      
 			  Flash_addr : OUT STD_LOGIC_VECTOR(22 downto 0) := "00000000000000000000000";
-			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ");
+			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+			  PS2KB_CLOCK : IN STD_LOGIC;
+			  PS2KB_DATA : IN STD_LOGIC);
 end CPU;
 
 architecture Behavioral of CPU is
@@ -108,7 +110,7 @@ component RamBlock is
 			  Flash_we : OUT STD_LOGIC := '1';
 			  Flash_rp : OUT STD_LOGIC := '1';      
 			  Flash_addr : OUT STD_LOGIC_VECTOR(22 downto 0) := "00000000000000000000000";
-			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ" );
+			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ");
 end component;
 
 component PCBlock is
@@ -117,7 +119,8 @@ component PCBlock is
            ImmLong : in  STD_LOGIC_VECTOR (10 downto 0);
            PCControl : in  STD_LOGIC_VECTOR (2 downto 0);
            PC : buffer  STD_LOGIC_VECTOR (15 downto 0);
-			  CLK : in STD_LOGIC);
+			  CLK : in STD_LOGIC;
+			  PCError: out STD_LOGIC);
 end component;
 
 component ControlBlock is
@@ -128,7 +131,8 @@ component ControlBlock is
            RAControl : out  STD_LOGIC_VECTOR(4 downto 0);
            RamControl : out  STD_LOGIC_VECTOR(2 downto 0);
 			  DYP : out STD_LOGIC_VECTOR(6 downto 0);
-			  OutPeriod: out STD_LOGIC_VECTOR(3 downto 0));
+			  OutPeriod: out STD_LOGIC_VECTOR(3 downto 0);
+			  PCError: in STD_LOGIC);
 end component;
 
 component RABlock is
@@ -197,6 +201,14 @@ component fontRom IS
 	douta: out std_logic_vector(7 downto 0));
 END component;
 
+component KeyboardBlock is
+    Port ( clk : in  STD_LOGIC;
+           rst : in  STD_LOGIC;
+           ps2clk : in  STD_LOGIC;
+           ps2data : in  STD_LOGIC;
+           data_ready : out  STD_LOGIC;
+           key_value : out  STD_LOGIC_VECTOR (15 downto 0));
+end component;
 
 signal RamControl: STD_LOGIC_VECTOR(2 downto 0):="000";
 signal PCControl: STD_LOGIC_VECTOR(2 downto 0):="000";
@@ -230,6 +242,10 @@ signal fontRomData : std_logic_vector(7 downto 0);
 
 signal OutPeriod: STD_LOGIC_VECTOR(3 downto 0);
 
+signal PCError: STD_LOGIC;
+
+signal keyboardDataReady : STD_LOGIC;
+signal keyValue : std_logic_vector(15 downto 0);
 begin
 
 	PCBlock_Entity: PCBlock port map (
@@ -238,7 +254,8 @@ begin
 		Ins(10 downto 0),
 		PCControl,
 		PC,
-		CLK
+		CLK,
+		PCError
 	);
 	
 	ControlBlock_Entity: ControlBlock port map( 
@@ -249,7 +266,8 @@ begin
 		RAControl,
 		RamControl,
 		DYP0,
-		OutPeriod
+		OutPeriod,
+		PCError
 	);
 	
 	RamBlock_Entity: RamBlock port map(
@@ -349,21 +367,32 @@ begin
 		fontRomAddr,
 		fontRomData
 	);
-		
+	
+	PS2Keyboard_Entity : KeyboardBlock port map(
+		CLK_50M,
+		RESET,
+		PS2KB_CLOCK,
+		PS2KB_DATA,
+		keyboardDataReady,
+		keyValue
+	);
 	with SW_DIP select FPGA_LED <=
-		PC     when "0000000000000001",
-		ALU    when "0000000000000010",
-		RegX   when "0000000000000100",
-		RegY   when "0000000000001000",
-		"000000000000000"&T when "0000000000010000",
-		Output when "0000000000100000",
-		Ins    when "0000000001000000",
-		"00000000000"&RAControl      when "0000000010000000",
-		"0000000000000"&RamControl   when "0000000100000000",
-		"0000000000000"&PCControl    when "0000001000000000",
-		"000000000000000"&Finish     when "0000010000000000",
-		"000000000000000"&DATA_READY when "0000100000000000",
+		keyValue when "0000000000000001",
+		"000000000000000"&keyboardDataReady when "0000000000000010",
 		"1010101010101010" when others;
+--		PC     when "0000000000000001",
+--		ALU    when "0000000000000010",
+--		RegX   when "0000000000000100",
+--		RegY   when "0000000000001000",
+--		"000000000000000"&T when "0000000000010000",
+--		Output when "0000000000100000",
+--		Ins    when "0000000001000000",
+--		"00000000000"&RAControl      when "0000000010000000",
+--		"0000000000000"&RamControl   when "0000000100000000",
+--		"0000000000000"&PCControl    when "0000001000000000",
+--		"000000000000000"&Finish     when "0000010000000000",
+--		"000000000000000"&DATA_READY when "0000100000000000",
+--		"1010101010101010" when others;
 --		RamControl&Finish&ALU(11 downto 0) when others;
 --		RAControl&RamControl&PCControl&ALU(4 downto 0) when others;
 --		PC when "0001",

@@ -63,7 +63,9 @@ entity Main is
 			  Flash_we : OUT STD_LOGIC := '1';
 			  Flash_rp : OUT STD_LOGIC := '1';      
 			  Flash_addr : OUT STD_LOGIC_VECTOR(22 downto 0) := "00000000000000000000000";
-			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ");
+			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+			  PS2KB_CLOCK : in STD_LOGIC;
+			  PS2KB_DATA : in STD_LOGIC);
 end Main;
 
 architecture Behavioral of Main is
@@ -101,7 +103,9 @@ component CPU is
 			Flash_we : OUT STD_LOGIC := '1';
 			Flash_rp : OUT STD_LOGIC := '1';      
 			Flash_addr : OUT STD_LOGIC_VECTOR(22 downto 0) := "00000000000000000000000";
-			Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ");
+			Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+			PS2KB_CLOCK : IN STD_LOGIC;
+			PS2KB_DATA : IN STD_LOGIC);
 end component;
 
 component RamBlock is
@@ -224,7 +228,9 @@ begin
 		Flash_we ,
 		Flash_rp ,
 		Flash_addr,
-		Flash_data );
+		Flash_data,
+		PS2KB_CLOCK,
+		PS2KB_DATA);
 
 end Behavioral;
 
