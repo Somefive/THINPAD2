@@ -206,6 +206,7 @@ component KeyboardBlock is
            rst : in  STD_LOGIC;
            ps2clk : in  STD_LOGIC;
            ps2data : in  STD_LOGIC;
+			  rdn : in STD_LOGIC;
            data_ready : out  STD_LOGIC;
            key_value : out  STD_LOGIC_VECTOR (15 downto 0));
 end component;
@@ -244,8 +245,9 @@ signal OutPeriod: STD_LOGIC_VECTOR(3 downto 0);
 
 signal PCError: STD_LOGIC;
 
-signal keyboardDataReady : STD_LOGIC;
-signal keyValue : std_logic_vector(15 downto 0);
+signal key_data_ready : STD_LOGIC;
+signal key_value : std_logic_vector(15 downto 0);
+signal key_rdn : std_logic := '0';
 begin
 
 	PCBlock_Entity: PCBlock port map (
@@ -373,12 +375,21 @@ begin
 		RESET,
 		PS2KB_CLOCK,
 		PS2KB_DATA,
-		keyboardDataReady,
-		keyValue
+		key_rdn,
+		key_data_ready,
+		key_value
 	);
-	with SW_DIP select FPGA_LED <=
-		keyValue when "0000000000000001",
-		"000000000000000"&keyboardDataReady when "0000000000000010",
+	process(CLK_KEY)
+	begin
+		if(CLK_KEY'event and CLK_KEY='1')then
+			key_rdn <= not key_rdn;
+		end if;
+	end process;
+	
+	with SW_DIP(15 downto 0) select FPGA_LED <=
+		key_value when "0000000000000001",
+		"000000000000000"&key_data_ready when "0000000000000010",
+		"000000000000000"&key_rdn when "0000000000000100",
 		"1010101010101010" when others;
 --		PC     when "0000000000000001",
 --		ALU    when "0000000000000010",
