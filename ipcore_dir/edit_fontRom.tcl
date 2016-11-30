@@ -22,7 +22,7 @@ proc findRtfPath { relativePath } {
 
 source [ findRtfPath "data/projnav/scripts/dpm_cgUtils.tcl" ]
 
-set result [ run_cg_edit "fontRom" xc3s1200e-4fg320 VHDL ]
+set result [ run_cg_edit "fontRom" xc3s1200e-4fg320 Verilog ]
 
 if { $result == 0 } {
    puts "Core Generator edit command completed successfully."
