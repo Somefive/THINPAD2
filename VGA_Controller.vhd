@@ -34,7 +34,10 @@ entity VGA_Controller is
 		tdata : in std_logic_vector(3 downto 0);
 	--Control Signals
 		reset	: in  std_logic;
-		CLK_in	: in  std_logic			--100M时钟输入
+		CLK_in	: in  std_logic;			--100M时钟输入
+		
+		font_value : in std_logic_vector(7 downto 0);
+		wrn : in std_logic
 	);		
 end entity VGA_Controller;
 
@@ -49,10 +52,33 @@ architecture behave of VGA_Controller is
 	
 	shared variable dx : integer range 0 to 7;
 	shared variable inty,tmp : integer range 0 to 500;
-
+--输入数组
+	type matrix_type is array(9 downto 0) of std_logic_vector(10 downto 0);
+	signal matrix_input : matrix_type;
+	signal romAddrBuffer : std_logic_vector(10 downto 0);
+	signal font_addr : std_logic_vector(10 downto 0);
+	signal count : integer :=0;
 begin
 --reset<=not reset_in;
-
+	font_addr <= conv_std_logic_vector(conv_integer(font_value)*8,11);
+	romAddrBuffer <= font_addr when wrn='0';
+	process(wrn)
+	begin
+		if(wrn'event and wrn='1')then
+			if(romAddrBuffer = "00000000000")then
+				count <= 0;
+			elsif(romAddrBuffer = "00001000000")then
+				if(count > 0)then
+					count <= count - 1;
+				end if;
+			else
+				if(count < 10)then
+					matrix_input(count) <= romAddrBuffer;
+					count <= count + 1;
+				end if;
+			end if;
+		end if;
+	end process;
 CLK<=CLK_2;
  -----------------------------------------------------------------------
 	process (CLK_in)
@@ -200,6 +226,22 @@ CLK<=CLK_2;
 						gt <= (others => romData(dx));
 						bt <= (others => romData(dx));
 					end if;
+				elsif(y>=192 and y<=199)then
+					if(count > 0)then
+						if(x=39)then
+							inty := conv_integer(y);
+							romAddr <= matrix_input(0) + inty mod 8;
+						else
+							dx := 7 - (conv_integer(x) - 40);
+							rt <= (others => romData(dx));
+							gt <= (others => romData(dx));
+							bt <= (others => romData(dx));
+						end if;
+					else
+						rt <= (others => '0');
+						gt <= (others => '0');
+						bt <= (others => '0');
+					end if;
 				else
 					rt <= (others => '0');
 					gt <= (others => '0');
@@ -218,10 +260,44 @@ CLK<=CLK_2;
 						gt <= (others => romData(dx));
 						bt <= (others => romData(dx));
 					end if;
+				elsif(y>=192 and y<=199)then
+					if(count > 1)then
+						if(x=49)then
+							inty := conv_integer(y);
+							romAddr <= matrix_input(1) + inty mod 8;
+						else
+							dx := 7 - (conv_integer(x) - 40);
+							rt <= (others => romData(dx));
+							gt <= (others => romData(dx));
+							bt <= (others => romData(dx));
+						end if;
+					else
+						rt <= (others => '0');
+						gt <= (others => '0');
+						bt <= (others => '0');
+					end if;
 				else
 					rt <= (others => '0');
 					gt <= (others => '0');
 					bt <= (others => '0');
+				end if;
+			elsif (x >= 59 and x <= 67)then
+				if(y>=192 and y<=199)then
+					if(count > 2)then
+						if(x=59)then
+							inty := conv_integer(y);
+							romAddr <= matrix_input(2) + inty mod 8;
+						else
+							dx := 7 - (conv_integer(x) - 40);
+							rt <= (others => romData(dx));
+							gt <= (others => romData(dx));
+							bt <= (others => romData(dx));
+						end if;
+					else
+						rt <= (others => '0');
+						gt <= (others => '0');
+						bt <= (others => '0');
+					end if;
 				end if;
 			elsif (x >= 69 and x <= 77) then
 				if (y >= 64 and y <= 71) then -- r0 3
@@ -343,6 +419,22 @@ CLK<=CLK_2;
 						rt <= (others => romData(dx));
 						gt <= (others => romData(dx));
 						bt <= (others => romData(dx));
+					end if;
+				elsif(y>=192 and y<=199)then
+					if(count > 3)then
+						if(x=69)then
+							inty := conv_integer(y);
+							romAddr <= matrix_input(3) + inty mod 8;
+						else
+							dx := 7 - (conv_integer(x) - 40);
+							rt <= (others => romData(dx));
+							gt <= (others => romData(dx));
+							bt <= (others => romData(dx));
+						end if;
+					else
+						rt <= (others => '0');
+						gt <= (others => '0');
+						bt <= (others => '0');
 					end if;
 				else 
 					rt <= (others => '0');
@@ -470,6 +562,22 @@ CLK<=CLK_2;
 						gt <= (others => romData(dx));
 						bt <= (others => romData(dx));
 					end if;
+				elsif(y>=192 and y<=199)then
+					if(count > 4)then
+						if(x=79)then
+							inty := conv_integer(y);
+							romAddr <= matrix_input(4) + inty mod 8;
+						else
+							dx := 7 - (conv_integer(x) - 40);
+							rt <= (others => romData(dx));
+							gt <= (others => romData(dx));
+							bt <= (others => romData(dx));
+						end if;
+					else
+						rt <= (others => '0');
+						gt <= (others => '0');
+						bt <= (others => '0');
+					end if;
 				else 
 					rt <= (others => '0');
 					gt <= (others => '0');
@@ -595,6 +703,22 @@ CLK<=CLK_2;
 						rt <= (others => romData(dx));
 						gt <= (others => romData(dx));
 						bt <= (others => romData(dx));
+					end if;
+				elsif(y>=192 and y<=199)then
+					if(count > 5)then
+						if(x=89)then
+							inty := conv_integer(y);
+							romAddr <= matrix_input(5) + inty mod 8;
+						else
+							dx := 7 - (conv_integer(x) - 40);
+							rt <= (others => romData(dx));
+							gt <= (others => romData(dx));
+							bt <= (others => romData(dx));
+						end if;
+					else
+						rt <= (others => '0');
+						gt <= (others => '0');
+						bt <= (others => '0');
 					end if;
 				else 
 					rt <= (others => '0');
@@ -722,7 +846,89 @@ CLK<=CLK_2;
 						gt <= (others => romData(dx));
 						bt <= (others => romData(dx));
 					end if;
+				elsif(y>=192 and y<=199)then
+					if(count > 6)then
+						if(x=99)then
+							inty := conv_integer(y);
+							romAddr <= matrix_input(6) + inty mod 8;
+						else
+							dx := 7 - (conv_integer(x) - 40);
+							rt <= (others => romData(dx));
+							gt <= (others => romData(dx));
+							bt <= (others => romData(dx));
+						end if;
+					else
+						rt <= (others => '0');
+						gt <= (others => '0');
+						bt <= (others => '0');
+					end if;
 				else 
+					rt <= (others => '0');
+					gt <= (others => '0');
+					bt <= (others => '0');
+				end if;
+			elsif ( x >= 109 and x <= 117) then
+				if(y>=192 and y<=199)then
+					if(count > 7)then
+						if(x=109)then
+							inty := conv_integer(y);
+							romAddr <= matrix_input(7) + inty mod 8;
+						else
+							dx := 7 - (conv_integer(x) - 40);
+							rt <= (others => romData(dx));
+							gt <= (others => romData(dx));
+							bt <= (others => romData(dx));
+						end if;
+					else
+						rt <= (others => '0');
+						gt <= (others => '0');
+						bt <= (others => '0');
+					end if;
+				else
+					rt <= (others => '0');
+					gt <= (others => '0');
+					bt <= (others => '0');
+				end if;
+			elsif ( x >= 119 and x <= 127) then
+				if(y>=192 and y<=199)then
+					if(count > 8)then
+						if(x=119)then
+							inty := conv_integer(y);
+							romAddr <= matrix_input(8) + inty mod 8;
+						else
+							dx := 7 - (conv_integer(x) - 40);
+							rt <= (others => romData(dx));
+							gt <= (others => romData(dx));
+							bt <= (others => romData(dx));
+						end if;
+					else
+						rt <= (others => '0');
+						gt <= (others => '0');
+						bt <= (others => '0');
+					end if;
+				else
+					rt <= (others => '0');
+					gt <= (others => '0');
+					bt <= (others => '0');
+				end if;
+			elsif ( x >= 129 and x <= 137) then
+				if(y>=192 and y<=199)then
+					if(count > 9)then
+						if(x=129)then
+							inty := conv_integer(y);
+							romAddr <= matrix_input(9) + inty mod 8;
+						else
+							dx := 7 - (conv_integer(x) - 40);
+							rt <= (others => romData(dx));
+							gt <= (others => romData(dx));
+							bt <= (others => romData(dx));
+						end if;
+					else
+						rt <= (others => '0');
+						gt <= (others => '0');
+						bt <= (others => '0');
+					end if;
+				else
 					rt <= (others => '0');
 					gt <= (others => '0');
 					bt <= (others => '0');
@@ -1014,9 +1220,9 @@ CLK<=CLK_2;
 				bt <= (others => '0');
 			end if;
 			
-		end if;		 
-	    end process;	
-
+		end if;
+end process;	
+		
 -----------------------------------------------------------------------
 -----------------------------------------------------------------------
 -----------------------------------------------------------------------

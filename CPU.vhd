@@ -193,7 +193,9 @@ component VGA_Controller is
 		tdata : in std_logic_vector(3 downto 0);
 	--Control Signals
 		reset	: in  std_logic;
-		CLK_in	: in  std_logic			--100M时钟输入
+		CLK_in	: in  std_logic;			--100M时钟输入
+		font_value : in std_logic_vector(7 downto 0);
+		wrn : in std_logic
 	);		
 end component;
 
@@ -251,8 +253,25 @@ signal PCError: STD_LOGIC;
 signal key_data_ready : STD_LOGIC;
 signal key_value : std_logic_vector(7 downto 0);
 signal key_rdn : std_logic := '0';
-begin
 
+--vga input 
+signal vga_font_value : std_logic_vector(7 downto 0):="00000000";
+signal vga_wrn : std_logic:='1';
+begin
+	process(CLK_KEY)
+	begin
+		if(CLK_KEY'event and CLK_KEY='1')then
+			vga_font_value <= SW_DIP(7 downto 0);
+		end if;
+	end process;
+	
+	process(RESET)
+	begin
+		if(RESET'event and RESET='1')then
+			vga_wrn <= not vga_wrn;
+		end if;
+	end process;
+	
 	PCBlock_Entity: PCBlock port map (
 		RegX,
 		T,
@@ -367,7 +386,9 @@ begin
 		RegT,
 	--Control Signals
 		RESET,
-		CLK_50M
+		CLK_50M,
+		vga_font_value,
+		vga_wrn
 	);		
 	
 	FontRom_Entity : fontRom port map(
@@ -390,6 +411,8 @@ begin
 		"00000000"&key_value when "0000000000000001",
 		"000000000000000"&key_data_ready when "0000000000000010",
 		"000000000000000"&key_rdn when "0000000000000100",
+		"00000000"&vga_font_value when "0000000000001000",
+		"000000000000000"&vga_wrn when "0000000000010000",
 		"1010101010101010" when others;
 --		PC     when "0000000000000001",
 --		ALU    when "0000000000000010",
