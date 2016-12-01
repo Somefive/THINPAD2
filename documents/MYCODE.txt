@@ -1,0 +1,52 @@
+﻿-----------设置SP-----------------------------
+LI R0 0xD0
+SLL R0 R0 0x0
+SW_SP R0 1
+SW_SP R1 2
+SW_SP R2 3
+SW_SP R3 4
+SW_SP R4 5
+SW_SP R5 6
+
+
+--wait for data ready
+NOP
+LI R6 0xBF
+SLL R6 R6 0x0
+LW R6 R0 0x1
+LI R6 0x4
+AND R0 R6
+BEQZ R0 0xF8
+
+
+------------从键盘读取数据存入内存并传给主机--------------
+;R5内存地址 R0 BF00  R1 输入 R3 0xFF
+LW_SP R5 1
+LI R0 0xBF
+SLL R0 R0 0x0
+LW R0 R1 0x05
+LI R3 0xFF
+AND R1 R3
+CMPI R1 0x73
+BTEQZ 4
+SW R0 R1 0x0
+SW R5 R1 0x0
+ADDIU R5 1
+B 0x7F7
+LI R1 0x0
+SW R0 R1 0x0
+SW R5 R1 0x0
+
+--------------从内存读取数据显示在主机屏幕上--------------------
+; R5 SP+1(内存地址) R0 BF00 R3 内存中数据
+LW_SP R5 1
+LI R0 0xBF
+SLL R0 R0 0x0
+LW R5 R3 0x0
+CMPI R3 0x0
+BTEQZ 3
+SW R0 R3 0x0
+ADDIU R5 1
+B 7FA
+LI R3 0x0
+SW R0 R3 0x0

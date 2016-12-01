@@ -49,7 +49,7 @@ architecture behave of VGA_Controller is
 	
 	shared variable dx : integer range 0 to 7;
 	shared variable inty,tmp : integer range 0 to 500;
-	
+
 begin
 --reset<=not reset_in;
 
