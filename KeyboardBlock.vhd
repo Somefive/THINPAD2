@@ -36,7 +36,7 @@ entity KeyboardBlock is
            ps2data : in  STD_LOGIC;
 			  rdn : in STD_LOGIC;
 			  data_ready : OUT STD_LOGIC;
-			  key_value : out  STD_LOGIC_VECTOR (15 downto 0));
+			  key_value : out  STD_LOGIC_VECTOR (7 downto 0));
 end KeyboardBlock;
 
 architecture Behavioral of KeyboardBlock is
@@ -52,7 +52,6 @@ signal keyCode : std_logic_vector(7 downto 0);
 signal lock_keyCode : std_logic_vector(7 downto 0);
 signal codeBuffer : std_logic_vector(7 downto 0);
 begin
-	key_value(15 downto 8) <= (others => '0');
 	lock_keyCode <= codeBuffer when rdn = '0';
 	with lock_keyCode select
 		key_value(7 downto 0) <= 
@@ -102,6 +101,19 @@ begin
 			"00001000" when "01100110" , -- BKSP
 			"00001101" when "01011010" , -- ENTER
 			"00100000" when "00101001" , -- SPACE
+			
+			"01110000" when "00000101" , -- F1
+			"01110001" when "00000110" , -- F2
+			"01110010" when "00000100" , -- F3
+			"01110011" when "00001100" , -- F4
+			"01110100" when "00000011" , -- F5
+			"01110101" when "00001011" , -- F6
+			"01110110" when "10000011" , -- F7
+			"01110111" when "00001010" , -- F8
+			"01111000" when "00000001" , -- F9
+			"01111001" when "00001001" , -- F10
+			"01111010" when "01111000" , -- F11
+			"01111011" when "00000111" , -- F12
 			"11111111" when others;
 
 	keyboard_entity : PS2Keyboard port map(

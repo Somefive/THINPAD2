@@ -64,7 +64,10 @@ entity RamBlock is
 			  Flash_we : OUT STD_LOGIC := '1';
 			  Flash_rp : OUT STD_LOGIC := '1';      
 			  Flash_addr : OUT STD_LOGIC_VECTOR(22 downto 0) := "00000000000000000000000";
-			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ");
+			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+			  KB_RDN: out STD_LOGIC := '1';
+			  KB_DATA_READY: in STD_LOGIC;
+			  KB_DATA_VALUE: in STD_LOGIC_VECTOR(7 downto 0));
 end RamBlock;
 
 architecture Behavioral of RamBlock is
@@ -244,6 +247,15 @@ begin
 							RDN <= '1';
 							FINISH <= '0';
 							state <= 3;
+						elsif(ALU="1011111100000101")then -- KB Read
+							RAM1_EN <= '1';
+							RAM1_OE <= '1';
+							RAM1_WE <= '1';
+							WRN <= '1';
+							RDN <= '1';
+							KB_RDN <= '1';
+							FINISH <= '0';
+							state <= 4;
 						else -- Ram Read
 							RAM1ADDR <= "00"&ALU;
 							RAM1_EN <= '0';
@@ -276,7 +288,16 @@ begin
 								RDN <= '1';
 								FINISH <= '1';
 							when 3 =>
-								Output <= "00000000000000"&DATA_READY&'1';
+								Output <= "0000000000000"&KB_DATA_READY&DATA_READY&'1';
+								FINISH <= '1';
+							when 4 =>
+								if(KB_DATA_READY='1')then
+									KB_RDN <= '0';
+									state <= 5;
+								end if;
+							when 5 =>
+								Output <= "00000000"&KB_DATA_VALUE;
+								KB_RDN <= '1';
 								FINISH <= '1';
 							when others =>
 						end case;

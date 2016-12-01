@@ -110,7 +110,10 @@ component RamBlock is
 			  Flash_we : OUT STD_LOGIC := '1';
 			  Flash_rp : OUT STD_LOGIC := '1';      
 			  Flash_addr : OUT STD_LOGIC_VECTOR(22 downto 0) := "00000000000000000000000";
-			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ");
+			  Flash_data : INOUT STD_LOGIC_VECTOR(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+			  KB_RDN: out STD_LOGIC := '1';
+			  KB_DATA_READY: in STD_LOGIC;
+			  KB_DATA_VALUE: in STD_LOGIC_VECTOR(7 downto 0));
 end component;
 
 component PCBlock is
@@ -208,7 +211,7 @@ component KeyboardBlock is
            ps2data : in  STD_LOGIC;
 			  rdn : in STD_LOGIC;
            data_ready : out  STD_LOGIC;
-           key_value : out  STD_LOGIC_VECTOR (15 downto 0));
+           key_value : out  STD_LOGIC_VECTOR (7 downto 0));
 end component;
 
 signal RamControl: STD_LOGIC_VECTOR(2 downto 0):="000";
@@ -246,7 +249,7 @@ signal OutPeriod: STD_LOGIC_VECTOR(3 downto 0);
 signal PCError: STD_LOGIC;
 
 signal key_data_ready : STD_LOGIC;
-signal key_value : std_logic_vector(15 downto 0);
+signal key_value : std_logic_vector(7 downto 0);
 signal key_rdn : std_logic := '0';
 begin
 
@@ -305,7 +308,10 @@ begin
 		Flash_we ,
 		Flash_rp, 
 		Flash_addr,
-		Flash_data
+		Flash_data,
+		key_rdn,
+		key_data_ready,
+		key_value
 	);
 	
 	RABlock_Entity : RABlock port map(
@@ -379,15 +385,9 @@ begin
 		key_data_ready,
 		key_value
 	);
-	process(CLK_KEY)
-	begin
-		if(CLK_KEY'event and CLK_KEY='1')then
-			key_rdn <= not key_rdn;
-		end if;
-	end process;
 	
 	with SW_DIP(15 downto 0) select FPGA_LED <=
-		key_value when "0000000000000001",
+		"00000000"&key_value when "0000000000000001",
 		"000000000000000"&key_data_ready when "0000000000000010",
 		"000000000000000"&key_rdn when "0000000000000100",
 		"1010101010101010" when others;
